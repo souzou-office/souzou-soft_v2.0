@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<title>通知 — souzou-soft v2.0</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: { colors: { brand: { navy: '#1A3A5C', blue: '#1565C0' } } } } };
+</script>
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+<style>body{font-family:Inter,'Yu Gothic','Noto Sans JP',sans-serif;}</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+<div class="flex min-h-screen">
+  <aside class="flex w-52 flex-col border-r bg-white">
+    <div class="flex h-12 items-center px-4 text-base font-bold text-brand-navy">
+      souzou-soft <span class="ml-1 text-xs font-normal text-gray-500">v2.0</span>
+    </div>
+    <nav class="flex-1 px-2 py-2 text-sm">
+      <a href="home.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">🏠 ホーム</a>
+      <a href="my.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">📋 マイビュー</a>
+      <a href="team.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">👥 チームビュー</a>
+      <a href="matrix.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">🔲 進捗マトリクス</a>
+    </nav>
+  </aside>
+
+  <div class="flex flex-1 flex-col">
+    <header class="flex h-12 items-center justify-between border-b bg-white px-4">
+      <h1 class="text-base font-semibold">通知</h1>
+    </header>
+
+    <main class="flex-1 p-4">
+      <div class="mb-2 flex items-center justify-between">
+        <p class="text-sm text-gray-500">最新 100件まで表示</p>
+        <button class="text-sm text-brand-blue hover:underline">すべて既読にする</button>
+      </div>
+      <ul class="divide-y border bg-white">
+        <li class="flex items-start gap-3 bg-blue-50 px-3 py-2 text-sm">
+          <span class="mt-1 size-2 shrink-0 rounded-full bg-brand-blue"></span>
+          <div class="flex-1">
+            <div class="font-medium">【souzou-soft】タスクが割り当てられました</div>
+            <div class="text-xs text-gray-600">所長様より 2026010101 必要書類一覧送付 が割り当てられました。期日:2026-11-01</div>
+            <div class="mt-0.5 text-xs text-gray-400">2026-10-28 09:12 · <a href="matter.html" class="text-brand-blue">事件を開く</a></div>
+          </div>
+          <button class="text-xs text-gray-500 hover:text-brand-blue">既読</button>
+        </li>
+        <li class="flex items-start gap-3 bg-blue-50 px-3 py-2 text-sm">
+          <span class="mt-1 size-2 shrink-0 rounded-full bg-brand-blue"></span>
+          <div class="flex-1">
+            <div class="font-medium">【souzou-soft】期日超過のタスクがあります</div>
+            <div class="text-xs text-gray-600">2026010099 必要書類一覧送付 の期日 2026-10-25 を過ぎています。担当:田中</div>
+            <div class="mt-0.5 text-xs text-gray-400">2026-10-28 07:00 · <a href="matter.html" class="text-brand-blue">事件を開く</a></div>
+          </div>
+          <button class="text-xs text-gray-500 hover:text-brand-blue">既読</button>
+        </li>
+        <li class="flex items-start gap-3 bg-blue-50 px-3 py-2 text-sm">
+          <span class="mt-1 size-2 shrink-0 rounded-full bg-brand-blue"></span>
+          <div class="flex-1">
+            <div class="font-medium">【souzou-soft】コメントが投稿されました</div>
+            <div class="text-xs text-gray-600">佐藤様が 2026010101 必要書類一覧送付 にコメントしました: 原本未到着のため、もう一度確認お願いします</div>
+            <div class="mt-0.5 text-xs text-gray-400">2026-10-28 14:20</div>
+          </div>
+          <button class="text-xs text-gray-500 hover:text-brand-blue">既読</button>
+        </li>
+        <li class="flex items-start gap-3 px-3 py-2 text-sm">
+          <div class="flex-1">
+            <div class="font-medium">【souzou-soft】タスクが完了しました</div>
+            <div class="text-xs text-gray-600">伊藤様が 2026010102 受領書保存 を完了しました</div>
+            <div class="mt-0.5 text-xs text-gray-400">2026-10-27 18:45</div>
+          </div>
+        </li>
+        <li class="flex items-start gap-3 px-3 py-2 text-sm">
+          <div class="flex-1">
+            <div class="font-medium">【souzou-soft】期日3日前のお知らせ</div>
+            <div class="text-xs text-gray-600">2026010103 必要書類一覧送付 の期日は 2026-10-30 です。残り3日です</div>
+            <div class="mt-0.5 text-xs text-gray-400">2026-10-27 07:00</div>
+          </div>
+        </li>
+        <li class="flex items-start gap-3 px-3 py-2 text-sm">
+          <div class="flex-1">
+            <div class="font-medium">【souzou-soft】明日決済予定の事件</div>
+            <div class="text-xs text-gray-600">明日 2026-10-28 決済予定の事件は 3件です。</div>
+            <div class="mt-0.5 text-xs text-gray-400">2026-10-27 07:00</div>
+          </div>
+        </li>
+      </ul>
+
+      <p class="mt-4 text-xs text-gray-500">仕様書 5.4.1 / B.1 — 通知 6 種は <code>NotificationType</code> enum と
+        <code>NotificationDispatcher</code> で発火。期日 3日前/超過は毎朝 7時のスケジュール job が一括送信。</p>
+    </main>
+  </div>
+</div>
+
+<a href="index.html" class="fixed bottom-4 right-4 rounded-full bg-brand-navy px-4 py-2 text-xs text-white shadow">← プレビュー一覧</a>
+</body>
+</html>

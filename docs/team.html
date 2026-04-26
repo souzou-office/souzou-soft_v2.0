@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<title>チームビュー — souzou-soft v2.0</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: { colors: { brand: { navy: '#1A3A5C', blue: '#1565C0' } } } } };
+</script>
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+<style>body{font-family:Inter,'Yu Gothic','Noto Sans JP',sans-serif;}</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+<div class="flex min-h-screen">
+  <aside class="flex w-52 flex-col border-r bg-white">
+    <div class="flex h-12 items-center px-4 text-base font-bold text-brand-navy">
+      souzou-soft <span class="ml-1 text-xs font-normal text-gray-500">v2.0</span>
+    </div>
+    <nav class="flex-1 px-2 py-2 text-sm">
+      <a href="home.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">🏠 ホーム</a>
+      <a href="my.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">📋 マイビュー</a>
+      <a href="team.html" class="flex items-center justify-between rounded bg-blue-50 px-2 py-1.5 font-medium">👥 チームビュー</a>
+      <a href="matrix.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">🔲 進捗マトリクス</a>
+    </nav>
+  </aside>
+
+  <div class="flex flex-1 flex-col">
+    <header class="flex h-12 items-center justify-between border-b bg-white px-4">
+      <h1 class="text-base font-semibold">チームビュー</h1>
+    </header>
+
+    <main class="flex-1 overflow-x-auto p-4">
+      <nav class="mb-3 flex gap-2 text-sm" id="tabs">
+        <button data-mode="A" class="rounded border bg-brand-blue px-3 py-1 text-white">モードA: 担当者×期日帯</button>
+        <button data-mode="B" class="rounded border px-3 py-1">モードB: 案件×担当者</button>
+      </nav>
+
+      <!-- モードA -->
+      <section id="mode-A">
+        <table class="w-full border-collapse text-sm">
+          <thead class="bg-gray-50 text-xs text-gray-500">
+            <tr>
+              <th class="px-3 py-1.5 text-left">期日帯</th>
+              <th class="px-3 py-1.5 text-center">田中</th>
+              <th class="px-3 py-1.5 text-center">佐藤</th>
+              <th class="px-3 py-1.5 text-center">鈴木</th>
+              <th class="px-3 py-1.5 text-center">伊藤</th>
+              <th class="px-3 py-1.5 text-center">高橋</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b">
+              <td class="px-3 py-1.5 font-semibold">期日超過</td>
+              <td class="bg-red-100 px-3 py-1.5 text-center">2</td>
+              <td class="px-3 py-1.5 text-center">0</td>
+              <td class="bg-red-100 px-3 py-1.5 text-center">3</td>
+              <td class="px-3 py-1.5 text-center">0</td>
+              <td class="px-3 py-1.5 text-center">0</td>
+            </tr>
+            <tr class="border-b">
+              <td class="px-3 py-1.5 font-semibold">今日</td>
+              <td class="px-3 py-1.5 text-center">5</td>
+              <td class="px-3 py-1.5 text-center">3</td>
+              <td class="bg-amber-100 px-3 py-1.5 text-center">7</td>
+              <td class="px-3 py-1.5 text-center">2</td>
+              <td class="px-3 py-1.5 text-center">1</td>
+            </tr>
+            <tr class="border-b">
+              <td class="px-3 py-1.5 font-semibold">今週</td>
+              <td class="px-3 py-1.5 text-center">11</td>
+              <td class="px-3 py-1.5 text-center">8</td>
+              <td class="bg-amber-100 px-3 py-1.5 text-center">15</td>
+              <td class="px-3 py-1.5 text-center">9</td>
+              <td class="px-3 py-1.5 text-center">6</td>
+            </tr>
+            <tr class="border-b">
+              <td class="px-3 py-1.5 font-semibold">来週</td>
+              <td class="px-3 py-1.5 text-center">8</td>
+              <td class="px-3 py-1.5 text-center">7</td>
+              <td class="px-3 py-1.5 text-center">8</td>
+              <td class="px-3 py-1.5 text-center">7</td>
+              <td class="px-3 py-1.5 text-center">5</td>
+            </tr>
+            <tr class="border-b">
+              <td class="px-3 py-1.5 font-semibold">合計</td>
+              <td class="px-3 py-1.5 text-center font-mono">26</td>
+              <td class="px-3 py-1.5 text-center font-mono">18</td>
+              <td class="bg-amber-100 px-3 py-1.5 text-center font-mono">33</td>
+              <td class="px-3 py-1.5 text-center font-mono">18</td>
+              <td class="px-3 py-1.5 text-center font-mono">12</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="mt-3 text-xs text-gray-500">仕様書 4.2.1 — セルクリックで該当 task をドロワー展開、ドラッグで他担当者に再割当（実装は React 版）</p>
+      </section>
+
+      <!-- モードB -->
+      <section id="mode-B" class="hidden">
+        <table class="w-full border-collapse text-sm">
+          <thead class="bg-gray-50 text-xs text-gray-500">
+            <tr>
+              <th class="px-3 py-1.5 text-left">事件</th>
+              <th class="px-3 py-1.5 text-left">決済日</th>
+              <th class="px-3 py-1.5 text-center">田中</th>
+              <th class="px-3 py-1.5 text-center">佐藤</th>
+              <th class="px-3 py-1.5 text-center">鈴木</th>
+              <th class="px-3 py-1.5 text-center">伊藤</th>
+              <th class="px-3 py-1.5 text-center">高橋</th>
+              <th class="px-3 py-1.5 text-center text-red-500">未割当</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b">
+              <td class="px-3 py-1.5 font-mono"><a href="matter.html" class="text-brand-blue hover:underline">2026010101</a></td>
+              <td class="px-3 py-1.5 text-gray-500">11/05</td>
+              <td class="px-3 py-1.5 text-center text-emerald-600">●</td>
+              <td class="px-3 py-1.5 text-center text-emerald-600">●</td>
+              <td class="px-3 py-1.5 text-center text-blue-600">◎</td>
+              <td class="px-3 py-1.5 text-center text-gray-300">−</td>
+              <td class="px-3 py-1.5 text-center text-gray-300">−</td>
+              <td class="px-3 py-1.5 text-center font-bold">0</td>
+            </tr>
+            <tr class="border-b">
+              <td class="px-3 py-1.5 font-mono"><a href="matter.html" class="text-brand-blue hover:underline">2026010102</a></td>
+              <td class="px-3 py-1.5 text-gray-500">11/05</td>
+              <td class="px-3 py-1.5 text-center text-gray-300">−</td>
+              <td class="px-3 py-1.5 text-center text-gray-300">−</td>
+              <td class="px-3 py-1.5 text-center text-red-600">◎</td>
+              <td class="px-3 py-1.5 text-center text-blue-600">◎</td>
+              <td class="px-3 py-1.5 text-center text-gray-300">−</td>
+              <td class="px-3 py-1.5 text-center font-bold text-red-600">2</td>
+            </tr>
+            <tr class="border-b">
+              <td class="px-3 py-1.5 font-mono"><a href="matter.html" class="text-brand-blue hover:underline">2026010103</a></td>
+              <td class="px-3 py-1.5 text-gray-500">11/06</td>
+              <td class="px-3 py-1.5 text-center text-blue-600">◎</td>
+              <td class="px-3 py-1.5 text-center text-emerald-600">●</td>
+              <td class="px-3 py-1.5 text-center text-gray-300">−</td>
+              <td class="px-3 py-1.5 text-center text-gray-300">−</td>
+              <td class="px-3 py-1.5 text-center text-gray-300">−</td>
+              <td class="px-3 py-1.5 text-center font-bold">0</td>
+            </tr>
+            <tr class="border-b">
+              <td class="px-3 py-1.5 font-mono"><a href="matter.html" class="text-brand-blue hover:underline">2026010104</a></td>
+              <td class="px-3 py-1.5 text-gray-500">11/07</td>
+              <td class="px-3 py-1.5 text-center text-gray-300">−</td>
+              <td class="px-3 py-1.5 text-center text-gray-300">−</td>
+              <td class="px-3 py-1.5 text-center text-blue-600">◎</td>
+              <td class="px-3 py-1.5 text-center text-gray-300">−</td>
+              <td class="px-3 py-1.5 text-center text-gray-300">−</td>
+              <td class="px-3 py-1.5 text-center font-bold text-red-600">3</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('#tabs button').forEach((b) => {
+  b.addEventListener('click', () => {
+    const mode = b.dataset.mode;
+    document.querySelectorAll('#tabs button').forEach((x) => {
+      x.classList.toggle('bg-brand-blue', x.dataset.mode === mode);
+      x.classList.toggle('text-white', x.dataset.mode === mode);
+    });
+    document.getElementById('mode-A').classList.toggle('hidden', mode !== 'A');
+    document.getElementById('mode-B').classList.toggle('hidden', mode !== 'B');
+  });
+});
+</script>
+
+<a href="index.html" class="fixed bottom-4 right-4 rounded-full bg-brand-navy px-4 py-2 text-xs text-white shadow">← プレビュー一覧</a>
+</body>
+</html>

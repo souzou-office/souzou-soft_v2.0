@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<title>ホーム — souzou-soft v2.0</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { colors: {
+    brand: { navy: '#1A3A5C', blue: '#1565C0' },
+    status: { completed: '#10B981', 'in-progress': '#3B82F6', warning: '#F59E0B', danger: '#EF4444', 'not-started': '#D1D5DB' },
+  }}},
+};
+</script>
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+<style>body{font-family:Inter,'Yu Gothic','Noto Sans JP',sans-serif;}</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+<div class="flex min-h-screen">
+
+  <!-- 左サイドナビ -->
+  <aside class="flex w-52 flex-col border-r bg-white">
+    <div class="flex h-12 items-center px-4 text-base font-bold text-brand-navy">
+      souzou-soft <span class="ml-1 text-xs font-normal text-gray-500">v2.0</span>
+    </div>
+    <nav class="flex-1 px-2 py-2 text-sm">
+      <a href="home.html" class="flex items-center justify-between rounded bg-blue-50 px-2 py-1.5 font-medium">
+        <span>🏠 ホーム</span><span class="font-mono text-[10px] text-gray-400">g h</span>
+      </a>
+      <a href="my.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">
+        <span>📋 マイビュー</span><span class="font-mono text-[10px] text-gray-400">g m</span>
+      </a>
+      <a href="team.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">
+        <span>👥 チームビュー</span><span class="font-mono text-[10px] text-gray-400">g t</span>
+      </a>
+      <a href="matrix.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">
+        <span>🔲 進捗マトリクス</span>
+      </a>
+    </nav>
+    <div class="border-t p-3 text-xs">
+      <div class="flex items-center justify-between">
+        <div><div class="font-semibold">田中 一郎</div><div class="text-gray-500">staff</div></div>
+        <a href="#" class="text-gray-500">ログアウト</a>
+      </div>
+    </div>
+  </aside>
+
+  <div class="flex flex-1 flex-col">
+    <!-- ヘッダー -->
+    <header class="flex h-12 items-center justify-between border-b bg-white px-4">
+      <h1 class="text-base font-semibold">ホーム — 事件一覧</h1>
+      <a href="notifications.html" class="relative inline-flex">
+        🔔
+        <span class="absolute -right-1 -top-1 inline-flex size-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">3</span>
+      </a>
+    </header>
+
+    <!-- 一覧テーブル -->
+    <main class="flex-1 overflow-x-auto p-4">
+      <p class="mb-2 text-xs text-gray-500">仕様書 3.2: 1行 36px・進捗ステッパー埋め込みで 1画面 20〜30件を視認</p>
+      <table class="w-full border-collapse text-sm">
+        <thead class="bg-gray-50 text-xs text-gray-500">
+          <tr class="border-b">
+            <th class="px-3 py-1.5 text-left">事件番号</th>
+            <th class="px-3 py-1.5 text-left">当事者</th>
+            <th class="px-3 py-1.5 text-left">決済日</th>
+            <th class="px-3 py-1.5 text-left">業務</th>
+            <th class="px-3 py-1.5 text-left">進捗</th>
+            <th class="px-3 py-1.5 text-left">%</th>
+            <th class="px-3 py-1.5 text-left">次工程</th>
+            <th class="px-3 py-1.5 text-left">主担当</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </main>
+  </div>
+</div>
+
+<script>
+// プレビュー用モックデータ。実体は DashboardController が同形の props を返す。
+const STATES = {
+  completed:    'bg-status-completed',
+  in_progress:  'bg-status-in-progress ring-1 ring-blue-700',
+  next:         'bg-status-warning ring-2 ring-amber-700 ring-offset-1',
+  overdue:      'bg-status-danger ring-2 ring-red-800 ring-offset-1',
+  not_started:  'border-2 border-status-not-started bg-white',
+};
+
+const matters = [
+  { num:'2026010101', parties:'山田太郎 → 佐藤花子', settle:'11/05(水) 9:30', job:'抹消・移転・設定', main:'田中', done:8, total:18, next:'前日連絡 (鈴木)', stepper:[6,3,3,3,4,1,1,1,1,1,1,5,5,5,5,5,5,5] },
+  { num:'2026010102', parties:'三井不動産 → 個人A', settle:'11/05(水) 14:00', job:'抹消・移転', main:'伊藤', done:14, total:16, next:'受領書保存 (伊藤)', stepper:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2] },
+  { num:'2026010103', parties:'カチタス株式会社 → 鈴木次郎', settle:'11/06(木) 10:00', job:'移転', main:'佐藤', done:5, total:14, next:'必要書類一覧送付 (田中)', stepper:[1,1,1,1,1,3,3,4,4,4,5,5,5,5] },
+  { num:'2026010104', parties:'高橋三郎 → 法人B', settle:'11/07(金) 13:30', job:'借換', main:'鈴木', done:2, total:15, next:'初回書類受領 (鈴木)', stepper:[1,1,3,4,4,4,4,4,4,4,4,4,4,4,4] },
+  { num:'2026010105', parties:'積水ハウス → 個人C', settle:'11/08(土) 9:00', job:'抹消・移転・設定', main:'伊藤', done:11, total:16, next:'決済・登記申請 (伊藤)', stepper:[1,1,1,1,1,1,1,1,1,1,1,3,5,5,5,5] },
+  { num:'2026010106', parties:'個人D → フラックス', settle:'11/10(月) 11:00', job:'抹消・移転', main:'田中', done:0, total:16, next:'当事者情報 (田中)', stepper:Array(16).fill(5) },
+  { num:'2026010107', parties:'個人E → 個人F', settle:'11/12(水) 15:00', job:'移転', main:'佐藤', done:3, total:14, next:'必要書類一覧送付 (佐藤) ⚠期日2日前', stepper:[1,1,1,4,4,4,4,4,5,5,5,5,5,5] },
+  { num:'2026010108', parties:'個人G → 個人H', settle:'11/15(土) 9:30', job:'設定', main:'鈴木', done:1, total:13, next:'初回書類受領 (鈴木)', stepper:[1,4,4,4,4,4,4,5,5,5,5,5,5] },
+];
+
+const labelMap = ['','completed','in_progress','overdue','next','not_started'];
+const stateMap = ['','completed','in_progress','overdue','next','not_started','overdue'];
+//  1=completed, 2=overdue/superscript exception 表現, 3=in_progress, 4=next, 5=not_started, 6=overdue
+const indexMap = { 1:'completed', 2:'overdue', 3:'in_progress', 4:'next', 5:'not_started', 6:'overdue' };
+
+const tbody = document.getElementById('rows');
+matters.forEach((m) => {
+  const row = document.createElement('tr');
+  row.className = 'border-b hover:bg-gray-50';
+  const overdueClass = m.next.includes('期日') || m.next.includes('超過') ? 'text-red-600' : '';
+  row.innerHTML = `
+    <td class="px-3 py-1.5 font-mono">
+      <a href="matter.html" class="text-brand-blue hover:underline">${m.num}</a>
+    </td>
+    <td class="px-3 py-1.5 text-gray-700">${m.parties}</td>
+    <td class="px-3 py-1.5 text-gray-700">${m.settle}</td>
+    <td class="px-3 py-1.5 text-xs text-gray-600">${m.job}</td>
+    <td class="px-3 py-1.5">
+      <div class="flex items-center gap-1">
+        ${m.stepper.map((code) => {
+          const state = indexMap[code] || 'not_started';
+          return `<span class="inline-block size-2.5 rounded-full ${STATES[state]}"></span>`;
+        }).join('')}
+      </div>
+    </td>
+    <td class="px-3 py-1.5 text-right tabular-nums">${Math.round(m.done/m.total*100)}%</td>
+    <td class="max-w-[260px] truncate px-3 py-1.5 ${overdueClass}">${m.next}</td>
+    <td class="px-3 py-1.5">${m.main}</td>
+  `;
+  tbody.appendChild(row);
+});
+</script>
+
+<a href="index.html" class="fixed bottom-4 right-4 rounded-full bg-brand-navy px-4 py-2 text-xs text-white shadow">← プレビュー一覧</a>
+</body>
+</html>

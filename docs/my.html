@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<title>マイビュー — souzou-soft v2.0</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { colors: {
+    brand: { navy: '#1A3A5C', blue: '#1565C0' },
+    status: { completed: '#10B981', 'in-progress': '#3B82F6', warning: '#F59E0B', danger: '#EF4444', 'not-started': '#D1D5DB' },
+  }}},
+};
+</script>
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+<style>body{font-family:Inter,'Yu Gothic','Noto Sans JP',sans-serif;}</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+<div class="flex min-h-screen">
+  <aside class="flex w-52 flex-col border-r bg-white">
+    <div class="flex h-12 items-center px-4 text-base font-bold text-brand-navy">
+      souzou-soft <span class="ml-1 text-xs font-normal text-gray-500">v2.0</span>
+    </div>
+    <nav class="flex-1 px-2 py-2 text-sm">
+      <a href="home.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">🏠 ホーム</a>
+      <a href="my.html" class="flex items-center justify-between rounded bg-blue-50 px-2 py-1.5 font-medium">📋 マイビュー</a>
+      <a href="team.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">👥 チームビュー</a>
+      <a href="matrix.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">🔲 進捗マトリクス</a>
+    </nav>
+  </aside>
+
+  <div class="flex flex-1 flex-col">
+    <header class="flex h-12 items-center justify-between border-b bg-white px-4">
+      <h1 class="text-base font-semibold">田中 一郎 のマイビュー</h1>
+    </header>
+
+    <main class="flex-1 space-y-4 overflow-x-auto p-4">
+
+      <!-- 期日超過 -->
+      <section class="rounded border border-red-300 bg-red-50">
+        <header class="flex items-center justify-between px-3 py-2">
+          <h2 class="text-sm font-semibold">期日超過 <span class="ml-2 text-xs text-gray-500">2件</span></h2>
+        </header>
+        <ul class="divide-y bg-white">
+          <li class="flex items-center gap-3 px-3 py-2 text-sm">
+            <input type="checkbox" class="rounded border-gray-300" />
+            <span class="inline-block size-3 rounded-full bg-status-danger ring-2 ring-red-800 ring-offset-1"></span>
+            <a href="matter.html" class="font-mono text-brand-blue hover:underline">2026010099</a>
+            <span class="text-gray-700">必要書類一覧送付</span>
+            <span class="ml-auto text-xs text-gray-500">期日 2026-10-25 <span class="ml-2 font-bold text-red-600">3日超過</span></span>
+            <span class="text-xs text-gray-400">from 所長</span>
+          </li>
+          <li class="flex items-center gap-3 px-3 py-2 text-sm">
+            <input type="checkbox" class="rounded border-gray-300" />
+            <span class="inline-block size-3 rounded-full bg-status-danger ring-2 ring-red-800 ring-offset-1"></span>
+            <a href="matter.html" class="font-mono text-brand-blue hover:underline">2026010102</a>
+            <span class="text-gray-700">3回目書類受領（抹消金融機関）</span>
+            <span class="ml-auto text-xs text-gray-500">期日 2026-10-27 <span class="ml-2 font-bold text-red-600">1日超過</span></span>
+            <span class="text-xs text-gray-500">💬 2</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- 今日 -->
+      <section class="rounded border border-amber-300 bg-amber-50">
+        <header class="flex items-center justify-between px-3 py-2">
+          <h2 class="text-sm font-semibold">今日 <span class="ml-2 text-xs text-gray-500">5件</span></h2>
+        </header>
+        <ul class="divide-y bg-white">
+          <li class="flex items-center gap-3 px-3 py-2 text-sm">
+            <input type="checkbox" class="rounded border-gray-300" />
+            <span class="inline-block size-3 rounded-full bg-status-in-progress ring-1 ring-blue-700"></span>
+            <a href="matter.html" class="font-mono text-brand-blue hover:underline">2026010101</a>
+            <span class="text-gray-700">前日連絡</span>
+            <span class="ml-auto text-xs text-gray-500">期日 2026-10-28 <span class="ml-2">あと0日</span></span>
+          </li>
+          <li class="flex items-center gap-3 px-3 py-2 text-sm">
+            <input type="checkbox" class="rounded border-gray-300" />
+            <span class="inline-block size-3 rounded-full border-2 border-status-not-started bg-white"></span>
+            <a href="matter.html" class="font-mono text-brand-blue hover:underline">2026010104</a>
+            <span class="text-gray-700">受付カード出力</span>
+            <span class="ml-auto text-xs text-gray-500">期日 2026-10-28 <span class="ml-2">あと0日</span></span>
+          </li>
+          <li class="flex items-center gap-3 px-3 py-2 text-sm">
+            <input type="checkbox" class="rounded border-gray-300" />
+            <span class="inline-block size-3 rounded-full border-2 border-status-not-started bg-white"></span>
+            <a href="matter.html" class="font-mono text-brand-blue hover:underline">2026010108</a>
+            <span class="text-gray-700">本人確認書類等保存</span>
+            <span class="ml-auto text-xs text-gray-500">期日 2026-10-28 <span class="ml-2">あと0日</span></span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- 明日 -->
+      <section class="rounded border border-gray-200 bg-white">
+        <header class="flex items-center justify-between px-3 py-2">
+          <h2 class="text-sm font-semibold">明日 <span class="ml-2 text-xs text-gray-500">4件</span></h2>
+        </header>
+        <ul class="divide-y bg-white">
+          <li class="flex items-center gap-3 px-3 py-2 text-sm">
+            <input type="checkbox" class="rounded border-gray-300" />
+            <span class="inline-block size-3 rounded-full border-2 border-status-not-started bg-white"></span>
+            <a href="matter.html" class="font-mono text-brand-blue hover:underline">2026010101</a>
+            <span class="text-gray-700">決済・登記申請</span>
+            <span class="ml-auto text-xs text-gray-500">期日 2026-10-29 <span class="ml-2">あと1日</span></span>
+          </li>
+          <li class="flex items-center gap-3 px-3 py-2 text-sm">
+            <input type="checkbox" class="rounded border-gray-300" />
+            <span class="inline-block size-3 rounded-full border-2 border-status-not-started bg-white"></span>
+            <a href="matter.html" class="font-mono text-brand-blue hover:underline">2026010102</a>
+            <span class="text-gray-700">決済・登記申請</span>
+            <span class="ml-auto text-xs text-gray-500">期日 2026-10-29 <span class="ml-2">あと1日</span></span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- 今週 -->
+      <section class="rounded border border-gray-200 bg-white">
+        <header class="flex items-center justify-between px-3 py-2">
+          <h2 class="text-sm font-semibold">今週 <span class="ml-2 text-xs text-gray-500">12件</span></h2>
+        </header>
+        <ul class="divide-y bg-white">
+          <li class="flex items-center gap-3 px-3 py-2 text-sm">
+            <input type="checkbox" class="rounded border-gray-300" />
+            <span class="inline-block size-3 rounded-full border-2 border-status-not-started bg-white"></span>
+            <a href="matter.html" class="font-mono text-brand-blue hover:underline">2026010103</a>
+            <span class="text-gray-700">必要書類一覧送付</span>
+            <span class="ml-auto text-xs text-gray-500">期日 2026-10-30 <span class="ml-2">あと2日</span></span>
+          </li>
+          <li class="flex items-center gap-3 px-3 py-2 text-sm text-gray-400">…他 11件</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</div>
+
+<a href="index.html" class="fixed bottom-4 right-4 rounded-full bg-brand-navy px-4 py-2 text-xs text-white shadow">← プレビュー一覧</a>
+</body>
+</html>

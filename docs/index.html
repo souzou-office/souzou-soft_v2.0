@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>souzou-soft v2.0 — UIプレビュー</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        brand: { navy: '#1A3A5C', blue: '#1565C0' },
+        status: {
+          completed: '#10B981', 'in-progress': '#3B82F6',
+          warning: '#F59E0B', danger: '#EF4444',
+          'not-started': '#D1D5DB', 'not-applicable': '#F3F4F6',
+        },
+      },
+    },
+  },
+};
+</script>
+<link rel="preconnect" href="https://rsms.me/" />
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+<style>body{font-family:Inter,'Yu Gothic','Noto Sans JP',sans-serif;}</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+<div class="mx-auto max-w-3xl p-8">
+  <header class="mb-8">
+    <h1 class="text-3xl font-bold text-brand-navy">souzou-soft <span class="text-base font-normal">v2.0</span></h1>
+    <p class="mt-2 text-sm text-gray-600">「souzou-soft v2.0 改修仕様書」(2026-04-26) に基づく UI プレビュー集。
+       静的 HTML でレンダリングしているので、ブラウザで直接開いて UI 設計を確認できます。
+       実体は Laravel + Inertia + React 版（<code class="rounded bg-gray-100 px-1 text-xs">resources/js/Pages/*</code>）にあります。</p>
+  </header>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-lg font-semibold">画面一覧</h2>
+    <ul class="divide-y rounded border bg-white text-sm">
+      <li class="flex items-center justify-between p-3">
+        <div>
+          <a href="home.html" class="font-medium text-brand-blue hover:underline">ホーム — 事件一覧</a>
+          <p class="text-xs text-gray-500">3.2 進捗ステッパー埋め込み一覧（行密度 36px、1画面 20〜30件）</p>
+        </div>
+        <span class="font-mono text-xs text-gray-400">/</span>
+      </li>
+      <li class="flex items-center justify-between p-3">
+        <div>
+          <a href="matter.html" class="font-medium text-brand-blue hover:underline">事件詳細</a>
+          <p class="text-xs text-gray-500">3.1 3層構造ヘッダー + 2.3.5 3カラムレイアウト</p>
+        </div>
+        <span class="font-mono text-xs text-gray-400">/matters/:id</span>
+      </li>
+      <li class="flex items-center justify-between p-3">
+        <div>
+          <a href="matrix.html" class="font-medium text-brand-blue hover:underline">進捗マトリクス</a>
+          <p class="text-xs text-gray-500">3.3 案件×工程の俯瞰グリッド。対象外セルは斜線で抜ける</p>
+        </div>
+        <span class="font-mono text-xs text-gray-400">/matrix</span>
+      </li>
+      <li class="flex items-center justify-between p-3">
+        <div>
+          <a href="my.html" class="font-medium text-brand-blue hover:underline">マイビュー</a>
+          <p class="text-xs text-gray-500">4.1 自分の 4 セクション（期日超過/今日/明日/今週）</p>
+        </div>
+        <span class="font-mono text-xs text-gray-400">/my</span>
+      </li>
+      <li class="flex items-center justify-between p-3">
+        <div>
+          <a href="team.html" class="font-medium text-brand-blue hover:underline">チームビュー</a>
+          <p class="text-xs text-gray-500">4.2 担当者別負荷バランス（モードA/B 切替）</p>
+        </div>
+        <span class="font-mono text-xs text-gray-400">/team</span>
+      </li>
+      <li class="flex items-center justify-between p-3">
+        <div>
+          <a href="notifications.html" class="font-medium text-brand-blue hover:underline">通知センター</a>
+          <p class="text-xs text-gray-500">5.4 / B.1 通知 6 種の表示</p>
+        </div>
+        <span class="font-mono text-xs text-gray-400">/notifications</span>
+      </li>
+      <li class="flex items-center justify-between p-3">
+        <div>
+          <a href="document.html" class="font-medium text-brand-blue hover:underline">書類生成フォーム</a>
+          <p class="text-xs text-gray-500">6.2.3 チェックボックス UI（YAML 定義から自動生成）</p>
+        </div>
+        <span class="font-mono text-xs text-gray-400">/matters/:id/documents/:tpl/form</span>
+      </li>
+      <li class="flex items-center justify-between p-3">
+        <div>
+          <a href="login.html" class="font-medium text-brand-blue hover:underline">ログイン</a>
+          <p class="text-xs text-gray-500">最小ログイン画面</p>
+        </div>
+        <span class="font-mono text-xs text-gray-400">/login</span>
+      </li>
+    </ul>
+  </section>
+
+  <section class="rounded border bg-white p-4 text-xs text-gray-600">
+    <h3 class="mb-2 text-sm font-semibold text-gray-800">凡例（StatusDot — 2.3.2 色＋形状の二重表現）</h3>
+    <div class="flex flex-wrap gap-4">
+      <span class="inline-flex items-center gap-1"><span class="inline-block size-3 rounded-full bg-status-completed"></span> 完了</span>
+      <span class="inline-flex items-center gap-1"><span class="inline-block size-3 rounded-full bg-status-in-progress ring-1 ring-blue-700"></span> 進行中</span>
+      <span class="inline-flex items-center gap-1"><span class="inline-block size-3 rounded-full bg-status-warning ring-2 ring-amber-700 ring-offset-1"></span> 次にやるべき</span>
+      <span class="inline-flex items-center gap-1"><span class="inline-block size-3 rounded-full bg-status-danger ring-2 ring-red-800 ring-offset-1"></span> 期日超過</span>
+      <span class="inline-flex items-center gap-1"><span class="inline-block size-3 rounded-full border-2 border-status-not-started bg-white"></span> 未着手</span>
+      <span class="inline-flex items-center gap-1">
+        <span class="inline-block size-3" style="background-image:repeating-linear-gradient(45deg,#E5E7EB 0 2px,transparent 2px 6px);"></span>
+        対象外
+      </span>
+    </div>
+  </section>
+</div>
+</body>
+</html>

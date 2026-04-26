@@ -106,6 +106,14 @@ php artisan serve
 
 開発用シードユーザー: `admin@souzou-office.local` / `password`
 
+## UI プレビュー（依存ゼロで見たい人向け）
+
+`docs/index.html` をブラウザで開くだけで、全主要画面の見た目を確認できる。
+Tailwind CDN で React 版と同じデザイントークンを再現した静的 HTML 版。
+
+GitHub Pages を有効化する場合は **Settings → Pages → Source: branch / Folder: /docs**。
+詳細は `docs/README.md`。
+
 ## 並走運用 (9.2)
 
 v1.x との並走期間中、新規事件のみ v2.0 で作成し、進行中事件は v1.x で完了まで運用する。

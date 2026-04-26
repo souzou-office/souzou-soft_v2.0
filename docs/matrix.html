@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<title>進捗マトリクス — souzou-soft v2.0</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { colors: {
+    brand: { navy: '#1A3A5C', blue: '#1565C0' },
+    cell: { 'completed-bg': '#DCFCE7', 'in-progress-bg': '#DBEAFE', 'next-bg': '#FEF3C7', 'overdue-bg': '#FEE2E2' },
+  }}},
+};
+</script>
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+<style>body{font-family:Inter,'Yu Gothic','Noto Sans JP',sans-serif;}</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+<div class="flex min-h-screen">
+  <aside class="flex w-52 flex-col border-r bg-white">
+    <div class="flex h-12 items-center px-4 text-base font-bold text-brand-navy">
+      souzou-soft <span class="ml-1 text-xs font-normal text-gray-500">v2.0</span>
+    </div>
+    <nav class="flex-1 px-2 py-2 text-sm">
+      <a href="home.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">🏠 ホーム</a>
+      <a href="my.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">📋 マイビュー</a>
+      <a href="team.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">👥 チームビュー</a>
+      <a href="matrix.html" class="flex items-center justify-between rounded bg-blue-50 px-2 py-1.5 font-medium">🔲 進捗マトリクス</a>
+    </nav>
+  </aside>
+
+  <div class="flex flex-1 flex-col">
+    <header class="flex h-12 items-center justify-between border-b bg-white px-4">
+      <h1 class="text-base font-semibold">進捗マトリクス</h1>
+    </header>
+
+    <main class="flex-1 overflow-auto p-4">
+      <div class="mb-3 flex flex-wrap gap-2 text-xs">
+        <select class="rounded border-gray-300"><option>決済日: 今週</option><option>今月</option></select>
+        <select class="rounded border-gray-300"><option>業務種別: すべて</option></select>
+        <select class="rounded border-gray-300"><option>担当者: すべて</option></select>
+        <select class="rounded border-gray-300"><option>進行状況: すべて</option></select>
+        <span class="text-gray-500">仕様書 3.3 — 縦軸=案件、横軸=task-code、対象外セルは斜線で抜ける</span>
+      </div>
+
+      <table class="border-collapse text-xs" id="matrix">
+        <thead>
+          <tr>
+            <th class="sticky left-0 z-10 bg-white px-2 py-1 text-left">事件</th>
+            <th class="px-2 py-1 text-left">決済日</th>
+            <th class="px-2 py-1 text-left">業務</th>
+            <th class="px-2 py-1 text-left">主担当</th>
+            <!-- 16 工程ヘッダ -->
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </main>
+  </div>
+</div>
+
+<script>
+const TASK_CODES = {
+  1:'当事者情報',2:'事件受任',3:'初回書類受領',4:'必要書類一覧送付',5:'2回目書類受領(売)',6:'3回目書類受領(抹)',
+  7:'書類作成',8:'スケジュール入力',9:'前日連絡',10:'受付カード',11:'本人確認保存',12:'決済・登記申請',
+  13:'FAX送付状(抹)',14:'送付状出力',15:'書類送付',16:'受領書保存',
+};
+
+const STATE_BG = {
+  completed:'bg-cell-completed-bg',
+  in_progress:'bg-cell-in-progress-bg',
+  next:'bg-cell-next-bg',
+  overdue:'bg-cell-overdue-bg',
+  not_started:'bg-white',
+  not_applicable:'',
+};
+
+// 借換 (job-type=10) は 5 が出ない。設定単独 (6) は 5/6/13 が出ない。等
+const JOB_TASKS = {
+  '抹消・移転・設定':   [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],
+  '抹消・移転':         [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],
+  '移転':               [1,2,3,4,5,7,8,9,10,11,12,14,15,16],
+  '借換':               [1,2,3,4,6,7,8,9,10,11,12,13,14,15,16],
+  '設定':               [1,2,3,4,7,8,9,10,11,12,14,15,16],
+};
+
+const matters = [
+  { num:'2026010101', settle:'11/05', job:'抹消・移転・設定', main:'田中', progress:[1,1,1,1,1,1,1,1,4,3,5,5,5,5,5,5] },
+  { num:'2026010102', settle:'11/05', job:'抹消・移転',       main:'伊藤', progress:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,5] },
+  { num:'2026010103', settle:'11/06', job:'移転',             main:'佐藤', progress:[1,1,1,1,1,_,3,3,5,5,5,5,_,5,5,5] },
+  { num:'2026010104', settle:'11/07', job:'借換',             main:'鈴木', progress:[1,1,3,4,_,5,5,5,5,5,5,5,5,5,5,5] },
+  { num:'2026010105', settle:'11/08', job:'抹消・移転・設定', main:'伊藤', progress:[1,1,1,1,1,1,1,1,1,1,1,3,5,5,5,5] },
+  { num:'2026010106', settle:'11/10', job:'抹消・移転',       main:'田中', progress:[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5] },
+  { num:'2026010107', settle:'11/12', job:'移転',             main:'佐藤', progress:[1,1,1,4,5,_,5,5,5,5,5,5,_,5,5,5] },
+  { num:'2026010108', settle:'11/15', job:'設定',             main:'鈴木', progress:[1,4,5,5,_,_,5,5,5,5,5,5,_,5,5,5] },
+];
+
+const _ = 'NA';
+const STATE_MAP = { 1:'completed', 2:'overdue', 3:'in_progress', 4:'next', 5:'not_started' };
+
+const thead = document.querySelector('#matrix thead tr');
+Object.entries(TASK_CODES).forEach(([k,name]) => {
+  const th = document.createElement('th');
+  th.className = 'w-8 border-b px-1 py-1 text-center';
+  th.title = name;
+  th.textContent = k;
+  thead.appendChild(th);
+});
+
+const tbody = document.querySelector('#matrix tbody');
+matters.forEach((m) => {
+  const tr = document.createElement('tr');
+  tr.className = 'border-b';
+  let html = `
+    <td class="sticky left-0 z-10 bg-white px-2 py-1 font-mono"><a href="matter.html" class="text-brand-blue hover:underline">${m.num}</a></td>
+    <td class="px-2 py-1 text-gray-600">${m.settle}</td>
+    <td class="px-2 py-1 text-gray-600">${m.job}</td>
+    <td class="px-2 py-1 text-gray-600">${m.main}</td>
+  `;
+  m.progress.forEach((code, idx) => {
+    if (code === 'NA') {
+      html += `<td class="h-8 w-8 border border-gray-100" style="background-image:repeating-linear-gradient(45deg,#E5E7EB 0 2px,transparent 2px 6px);"></td>`;
+    } else {
+      const state = STATE_MAP[code];
+      const tooltip = TASK_CODES[idx+1];
+      html += `<td title="${tooltip}" class="h-8 w-8 border border-gray-100 ${STATE_BG[state]} text-center align-middle">
+        <span class="text-[9px] text-gray-500">${m.main[0]}</span>
+      </td>`;
+    }
+  });
+  tr.innerHTML = html;
+  tbody.appendChild(tr);
+});
+</script>
+
+<a href="index.html" class="fixed bottom-4 right-4 rounded-full bg-brand-navy px-4 py-2 text-xs text-white shadow">← プレビュー一覧</a>
+</body>
+</html>

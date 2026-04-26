@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<title>事件詳細 — souzou-soft v2.0</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { colors: {
+    brand: { navy: '#1A3A5C', blue: '#1565C0' },
+    status: { completed: '#10B981', 'in-progress': '#3B82F6', warning: '#F59E0B', danger: '#EF4444', 'not-started': '#D1D5DB' },
+  }}},
+};
+</script>
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+<style>body{font-family:Inter,'Yu Gothic','Noto Sans JP',sans-serif;}</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+<div class="flex min-h-screen">
+  <aside class="flex w-52 flex-col border-r bg-white">
+    <div class="flex h-12 items-center px-4 text-base font-bold text-brand-navy">
+      souzou-soft <span class="ml-1 text-xs font-normal text-gray-500">v2.0</span>
+    </div>
+    <nav class="flex-1 px-2 py-2 text-sm">
+      <a href="home.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">🏠 ホーム</a>
+      <a href="my.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">📋 マイビュー</a>
+      <a href="team.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">👥 チームビュー</a>
+      <a href="matrix.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">🔲 進捗マトリクス</a>
+    </nav>
+  </aside>
+
+  <div class="flex flex-1 flex-col">
+    <header class="flex h-12 items-center justify-between border-b bg-white px-4">
+      <h1 class="text-base font-semibold">事件 2026010101</h1>
+      <a href="notifications.html" class="relative inline-flex">🔔
+        <span class="absolute -right-1 -top-1 inline-flex size-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">3</span>
+      </a>
+    </header>
+
+    <!-- 第3層: ミニマップ（右上 fixed） -->
+    <div class="fixed right-4 top-4 z-40 rounded bg-white/90 px-2 py-1 text-xs shadow ring-1 ring-gray-200">
+      <div class="flex items-center gap-2">
+        <span class="text-gray-500">進捗</span>
+        <div class="h-1.5 w-24 overflow-hidden rounded-full bg-gray-200">
+          <div class="h-full bg-brand-blue" style="width:44%"></div>
+        </div>
+        <span class="font-mono text-gray-700">44%</span>
+      </div>
+    </div>
+
+    <main class="flex-1">
+      <!-- 第1層: サマリーバー -->
+      <div class="sticky top-0 z-30 bg-white">
+        <div class="flex h-10 items-center gap-4 border-b border-b-amber-300 bg-white px-4 text-sm">
+          <span class="font-mono font-semibold text-brand-navy">2026010101</span>
+          <span class="text-gray-700">山田太郎・山田花子 → 佐藤次郎</span>
+          <span class="text-gray-600">決済: 11/05(水) 09:30</span>
+          <span class="rounded bg-gray-100 px-1.5 py-0.5 text-xs">抹消・移転・設定</span>
+          <span class="text-gray-700">進捗 <span class="font-semibold">8/18</span> <span class="text-gray-500">(44%)</span></span>
+          <span class="ml-auto text-gray-700">
+            次: <span class="font-medium">必要書類一覧送付</span>
+            <span class="text-gray-500">(田中)</span>
+            <span class="ml-2 text-gray-500">期日 2026-11-01</span>
+            <span class="ml-2 text-amber-600">あと 4 日</span>
+          </span>
+        </div>
+
+        <!-- 第2層: 工程ステッパー -->
+        <div class="border-b bg-white px-4 py-3">
+          <div class="flex items-center gap-2 overflow-x-auto">
+            <!-- 18 工程をシミュレート: 完了8, 次1, 進行中1, 未着手8 -->
+            <div class="flex flex-col items-center"><span class="inline-block size-4 rounded-full bg-status-completed"></span><span class="mt-0.5 text-[10px] text-gray-500">田</span></div>
+            <div class="flex flex-col items-center"><span class="inline-block size-4 rounded-full bg-status-completed"></span><span class="mt-0.5 text-[10px] text-gray-500">田</span></div>
+            <div class="flex flex-col items-center"><span class="inline-block size-4 rounded-full bg-status-completed"></span><span class="mt-0.5 text-[10px] text-gray-500">田</span></div>
+            <div class="flex flex-col items-center"><span class="inline-block size-4 rounded-full bg-status-completed"></span><span class="mt-0.5 text-[10px] text-gray-500">田</span></div>
+            <div class="flex flex-col items-center"><span class="inline-block size-4 rounded-full bg-status-completed"></span><span class="mt-0.5 text-[10px] text-gray-500">佐</span></div>
+            <div class="flex flex-col items-center"><span class="inline-block size-4 rounded-full bg-status-completed"></span><span class="mt-0.5 text-[10px] text-gray-500">佐</span></div>
+            <div class="flex flex-col items-center"><span class="inline-block size-4 rounded-full bg-status-completed"></span><span class="mt-0.5 text-[10px] text-gray-500">田</span></div>
+            <div class="flex flex-col items-center"><span class="inline-block size-4 rounded-full bg-status-completed"></span><span class="mt-0.5 text-[10px] text-gray-500">田</span></div>
+            <div class="flex flex-col items-center"><span class="inline-block size-4 rounded-full bg-status-warning ring-2 ring-amber-700 ring-offset-1"></span><span class="mt-0.5 text-[10px] text-gray-500">田</span></div>
+            <div class="flex flex-col items-center"><span class="inline-block size-4 rounded-full bg-status-in-progress ring-1 ring-blue-700"></span><span class="mt-0.5 text-[10px] text-gray-500">鈴</span></div>
+            <div class="flex flex-col items-center"><span class="inline-block size-4 rounded-full border-2 border-status-not-started bg-white"></span><span class="mt-0.5 text-[10px] text-gray-500">鈴</span></div>
+            <div class="flex flex-col items-center"><span class="inline-block size-4 rounded-full border-2 border-status-not-started bg-white"></span><span class="mt-0.5 text-[10px] text-gray-500">鈴</span></div>
+            <div class="flex flex-col items-center"><span class="inline-block size-4 rounded-full border-2 border-status-not-started bg-white"></span><span class="mt-0.5 text-[10px] text-gray-500">田</span></div>
+            <div class="flex flex-col items-center"><span class="inline-block size-4 rounded-full border-2 border-status-not-started bg-white"></span><span class="mt-0.5 text-[10px] text-gray-500">田</span></div>
+            <div class="flex flex-col items-center"><span class="inline-block size-4 rounded-full border-2 border-status-not-started bg-white"></span><span class="mt-0.5 text-[10px] text-gray-500">田</span></div>
+            <div class="flex flex-col items-center"><span class="inline-block size-4 rounded-full border-2 border-status-not-started bg-white"></span><span class="mt-0.5 text-[10px] text-gray-500">伊</span></div>
+            <div class="flex flex-col items-center"><span class="inline-block size-4 rounded-full border-2 border-status-not-started bg-white"></span><span class="mt-0.5 text-[10px] text-gray-500">伊</span></div>
+            <div class="flex flex-col items-center"><span class="inline-block size-4 rounded-full border-2 border-status-not-started bg-white"></span><span class="mt-0.5 text-[10px] text-gray-500">伊</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3カラムレイアウト -->
+      <div class="grid grid-cols-[220px_1fr_300px]">
+        <!-- 左サイド: 工程ナビ -->
+        <aside class="border-r bg-white p-2 text-sm">
+          <div class="mb-2 px-2 text-xs font-semibold text-gray-500">工程</div>
+          <ul>
+            <li><button class="flex w-full items-center justify-between rounded px-2 py-1.5 text-left hover:bg-gray-50"><span>当事者情報</span><span class="text-xs text-gray-400">共通</span></button></li>
+            <li><button class="flex w-full items-center justify-between rounded px-2 py-1.5 text-left hover:bg-gray-50"><span>事件受任</span><span class="text-xs text-gray-400">共通</span></button></li>
+            <li><button class="flex w-full items-center justify-between rounded px-2 py-1.5 text-left hover:bg-gray-50"><span>初回書類受領</span><span class="text-xs text-gray-400">共通</span></button></li>
+            <li><button class="flex w-full items-center justify-between rounded bg-blue-50 px-2 py-1.5 text-left font-medium"><span>必要書類一覧送付</span><span class="text-xs text-gray-400">共通</span></button></li>
+            <li><button class="flex w-full items-center justify-between rounded px-2 py-1.5 text-left hover:bg-gray-50"><span>2回目書類受領</span><span class="text-xs text-gray-400">売主</span></button></li>
+            <li><button class="flex w-full items-center justify-between rounded px-2 py-1.5 text-left hover:bg-gray-50"><span>3回目書類受領</span><span class="text-xs text-gray-400">抹消金</span></button></li>
+            <li><button class="flex w-full items-center justify-between rounded px-2 py-1.5 text-left hover:bg-gray-50"><span>書類作成</span><span class="text-xs text-gray-400">共通</span></button></li>
+            <li><button class="flex w-full items-center justify-between rounded px-2 py-1.5 text-left hover:bg-gray-50"><span>スケジュール入力</span><span class="text-xs text-gray-400">共通</span></button></li>
+            <li><button class="flex w-full items-center justify-between rounded px-2 py-1.5 text-left hover:bg-gray-50"><span>前日連絡</span><span class="text-xs text-gray-400">共通</span></button></li>
+            <li><button class="flex w-full items-center justify-between rounded px-2 py-1.5 text-left hover:bg-gray-50"><span>受付カード出力</span><span class="text-xs text-gray-400">共通</span></button></li>
+            <li><button class="flex w-full items-center justify-between rounded px-2 py-1.5 text-left hover:bg-gray-50"><span>本人確認書類保存</span><span class="text-xs text-gray-400">共通</span></button></li>
+            <li><button class="flex w-full items-center justify-between rounded px-2 py-1.5 text-left hover:bg-gray-50"><span>決済・登記申請</span><span class="text-xs text-gray-400">共通</span></button></li>
+          </ul>
+        </aside>
+
+        <!-- 中央: 選択中工程の入力エリア -->
+        <section class="p-6">
+          <article>
+            <header class="mb-4 flex items-center justify-between">
+              <h2 class="text-xl font-semibold">必要書類一覧送付</h2>
+              <span class="text-xs text-gray-500">task #4231</span>
+            </header>
+
+            <div class="mb-6 grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <div class="text-xs text-gray-500">担当者</div>
+                <div class="mt-0.5">
+                  <select class="rounded border-gray-200 bg-transparent text-sm">
+                    <option>田中 一郎</option><option>佐藤 次郎</option><option>鈴木 三郎</option><option>伊藤 四郎</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-500">進行状況</div>
+                <div class="mt-0.5">
+                  <select class="rounded border-gray-200 bg-transparent text-sm">
+                    <option selected>未着手</option><option>進行中</option><option>完了</option><option>確認待ち</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-500">期日</div>
+                <div class="mt-0.5 font-mono">2026-11-01</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-500">残り</div>
+                <div class="mt-0.5 text-amber-600">4 日</div>
+              </div>
+            </div>
+
+            <details class="mb-4 rounded border bg-gray-50 p-3" open>
+              <summary class="cursor-pointer text-sm font-medium">書類生成</summary>
+              <ul class="mt-2 space-y-1 text-sm">
+                <li><a href="document.html" class="text-brand-blue hover:underline">📄 必要書類等一覧（買主）</a> <span class="text-xs text-gray-500">— 汎用テンプレ</span></li>
+                <li><a href="document.html" class="text-brand-blue hover:underline">📄 送付書兼受領書（買主）</a></li>
+                <li class="text-xs text-gray-500">※ 「カチタス様」「フラックス様」等の特定顧客テンプレは customer.name_contains で自動マッチ（6.2.1）</li>
+              </ul>
+            </details>
+
+            <details class="rounded border bg-gray-50 p-3">
+              <summary class="cursor-pointer text-sm font-medium">コメント (2)</summary>
+              <ul class="mt-2 space-y-2 text-xs">
+                <li><span class="font-medium">佐藤</span> <span class="text-gray-400">10/28 14:20</span><br/>原本未到着のため、もう一度確認お願いします</li>
+                <li><span class="font-medium">田中</span> <span class="text-gray-400">10/29 09:05</span><br/>本日再依頼しました。週末までに到着見込み</li>
+              </ul>
+              <textarea class="mt-2 w-full rounded border-gray-300 text-sm" rows="2" placeholder="コメント追加..."></textarea>
+            </details>
+          </article>
+        </section>
+
+        <!-- 右サイド: 当事者・物件・Drive -->
+        <aside class="border-l bg-white p-4 text-sm">
+          <div class="mb-4">
+            <div class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">当事者</div>
+            <div class="mb-2 border-b pb-2">
+              <div class="text-xs text-gray-500">売主</div>
+              <div class="font-medium">山田 太郎</div>
+              <div class="text-xs text-gray-500">東京都新宿区...</div>
+            </div>
+            <div class="mb-2 border-b pb-2">
+              <div class="text-xs text-gray-500">売主</div>
+              <div class="font-medium">山田 花子</div>
+            </div>
+            <div class="mb-2 border-b pb-2">
+              <div class="text-xs text-gray-500">買主</div>
+              <div class="font-medium">佐藤 次郎</div>
+              <div class="text-xs text-gray-500">神奈川県横浜市...</div>
+            </div>
+            <div class="mb-2 border-b pb-2">
+              <div class="text-xs text-gray-500">設定金融機関</div>
+              <div class="font-medium">三井住友銀行</div>
+            </div>
+          </div>
+          <div class="mb-4">
+            <div class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">物件</div>
+            <div class="mb-2 text-xs text-gray-700">東京都新宿区西新宿◯丁目 12-34</div>
+          </div>
+          <div class="mb-4">
+            <div class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Driveフォルダ</div>
+            <a href="#" class="text-xs text-brand-blue hover:underline">Drive で開く ↗</a>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+</div>
+
+<a href="index.html" class="fixed bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-brand-navy px-4 py-2 text-xs text-white shadow">← プレビュー一覧</a>
+</body>
+</html>

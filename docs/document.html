@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<title>書類生成 — souzou-soft v2.0</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: { colors: { brand: { navy: '#1A3A5C', blue: '#1565C0' } } } } };
+</script>
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+<style>body{font-family:Inter,'Yu Gothic','Noto Sans JP',sans-serif;}</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+<div class="flex min-h-screen">
+  <aside class="flex w-52 flex-col border-r bg-white">
+    <div class="flex h-12 items-center px-4 text-base font-bold text-brand-navy">
+      souzou-soft <span class="ml-1 text-xs font-normal text-gray-500">v2.0</span>
+    </div>
+    <nav class="flex-1 px-2 py-2 text-sm">
+      <a href="home.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">🏠 ホーム</a>
+      <a href="my.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">📋 マイビュー</a>
+      <a href="team.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">👥 チームビュー</a>
+      <a href="matrix.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">🔲 進捗マトリクス</a>
+    </nav>
+  </aside>
+
+  <div class="flex flex-1 flex-col">
+    <header class="flex h-12 items-center justify-between border-b bg-white px-4">
+      <h1 class="text-base font-semibold">書類生成 — 必要書類等一覧（買主）</h1>
+    </header>
+
+    <main class="flex-1 p-6">
+      <div class="max-w-xl space-y-4">
+        <header>
+          <h2 class="text-lg font-semibold">必要書類等一覧（買主）</h2>
+          <p class="text-xs text-gray-500">事件 2026010101</p>
+        </header>
+
+        <section>
+          <div class="mb-2 text-xs font-medium text-gray-600">プリセット <span class="text-gray-400">— よくある組合せをワンクリック</span></div>
+          <div class="flex flex-wrap gap-2">
+            <button class="rounded border bg-gray-50 px-2 py-1 text-xs hover:bg-gray-100">個人標準</button>
+            <button class="rounded border bg-gray-50 px-2 py-1 text-xs hover:bg-gray-100">法人標準</button>
+            <button class="rounded border bg-gray-50 px-2 py-1 text-xs hover:bg-gray-100">設定金融機関2行</button>
+          </div>
+        </section>
+
+        <section class="space-y-4 rounded border bg-white p-4">
+          <div>
+            <div class="text-sm font-medium">買主種別</div>
+            <div class="mt-1 flex gap-3 text-sm">
+              <label class="flex items-center gap-1"><input type="radio" name="buyer" checked />個人</label>
+              <label class="flex items-center gap-1"><input type="radio" name="buyer" />法人</label>
+            </div>
+          </div>
+          <div>
+            <div class="text-sm font-medium">住所変更あり</div>
+            <label class="mt-1 flex items-center gap-1 text-sm"><input type="checkbox" /> 有効にする</label>
+          </div>
+          <div>
+            <div class="text-sm font-medium">設定金融機関あり</div>
+            <label class="mt-1 flex items-center gap-1 text-sm"><input type="checkbox" checked /> 有効にする</label>
+          </div>
+          <div>
+            <div class="text-sm font-medium">設定金融機関数</div>
+            <input type="number" value="1" class="mt-1 w-20 rounded border-gray-300 text-sm" />
+            <span class="ml-2 text-xs text-gray-500">→ <code>${BLOCK_START_settings}...${BLOCK_END_settings}</code> が 1 回展開</span>
+          </div>
+          <div>
+            <div class="text-sm font-medium">押印タイミング</div>
+            <div class="mt-1 flex gap-3 text-sm">
+              <label class="flex items-center gap-1"><input type="radio" name="stamp" checked />事前押印</label>
+              <label class="flex items-center gap-1"><input type="radio" name="stamp" />決済日当日</label>
+            </div>
+          </div>
+        </section>
+
+        <button class="rounded bg-brand-blue px-4 py-2 text-sm text-white hover:bg-blue-700">
+          生成して Drive に保存
+        </button>
+
+        <details class="rounded border bg-gray-50 p-3 text-xs text-gray-700" open>
+          <summary class="cursor-pointer text-sm font-medium">仕様書 6.x 設計のポイント</summary>
+          <ul class="mt-2 list-disc space-y-1 pl-4">
+            <li><b>6.2.1 メタデータ駆動の選択</b>: テンプレに付随する <code>applies_when</code> YAML（job_type / role / customer.name_contains）を <code>TemplateSelector</code> が評価。priority 100=特定顧客 / 50=業務種別固有 / 10=汎用</li>
+            <li><b>6.2.2 ${IF_xxx} 記法</b>: <code>ConditionalPreprocessor</code> が docx XML を直接書換、phpword に渡す前に分岐解決</li>
+            <li><b>6.2.3 チェックボックスUI 自動生成</b>: 各テンプレの <code>ui_definition_yaml</code> から本フォームを動的生成。本画面の項目は仕様書の例と完全一致</li>
+            <li><b>6.3 構造化差込変数</b>: <code>${売主.0.氏名}</code>, <code>${物件.0.所在}</code> 等のドット記法を <code>MatterContext</code> でフラットマップに変換</li>
+            <li><b>7.x Drive 保存</b>: 出力先は <code>matter_files.drive_folder_id</code>。<code>DriveUploader</code> が失敗時は local fallback</li>
+          </ul>
+        </details>
+      </div>
+    </main>
+  </div>
+</div>
+
+<a href="index.html" class="fixed bottom-4 right-4 rounded-full bg-brand-navy px-4 py-2 text-xs text-white shadow">← プレビュー一覧</a>
+</body>
+</html>
