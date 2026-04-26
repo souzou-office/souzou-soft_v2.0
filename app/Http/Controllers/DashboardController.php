@@ -6,7 +6,6 @@ use App\Enums\RoleCode;
 use App\Models\Matter;
 use App\Models\Task;
 use App\Models\User;
-use App\Services\Tasks\PhaseResolver;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -19,8 +18,6 @@ use Inertia\Response;
  */
 class DashboardController extends Controller
 {
-    public function __construct(private readonly PhaseResolver $phases) {}
-
     public function index(Request $request): Response
     {
         $matters = Matter::query()
@@ -31,8 +28,6 @@ class DashboardController extends Controller
 
         return Inertia::render('Home/Index', [
             'matters' => $matters,
-            // フェーズバッジ表示用にマスタも送る（labels の翻訳を front で重複させない）
-            'phases'  => $this->phases->definitions(),
             // 主担当の InlineSelect 用。全 active ユーザーを送る。
             'staff'   => User::where('is_active', true)->orderBy('name')->get(['id', 'name']),
         ]);
@@ -62,21 +57,42 @@ class DashboardController extends Controller
                 'days_left'    => $next->daysUntilDue(),
                 'state'        => $next->visualState(),
             ] : null,
-            // 3.2 一覧テーブル用にステッパー描画データ
-            'stepper'        => $matter->tasks->map(fn (Task $t) => [
-                'id'           => $t->id,
-                'task_code'    => $t->task_code,
-                'name'         => $t->task_name,
-                'state'        => $t->visualState(),
-                'role_code'    => $t->role_code?->value,
-                'assignee'     => $t->assignee?->name,
-                'planned_date' => optional($t->planned_date)->format('Y-m-d'),
+            // 3.2 一覧テーブル用にタスクセル描画データ。
+            // フェーズではなく「タスクが埋まっているか」を見るため、各 task の
+            // 状態と担当者頭文字を平坦に並べる。
+            'tasks'          => $matter->tasks->map(fn (Task $t) => [
+                'id'                => $t->id,
+                'task_code'         => $t->task_code,
+                'name'              => $t->task_name,
+                'state'             => $t->visualState(),
+                'role_code'         => $t->role_code?->value,
+                'assignee'          => $t->assignee?->name,
+                'assignee_initial'  => $t->assignee?->name ? mb_substr($t->assignee->name, 0, 1) : null,
+                'is_unassigned'     => $t->assignee_user_id === null,
+                'planned_date'      => optional($t->planned_date)->format('Y-m-d'),
+                'days_left'         => $t->daysUntilDue(),
             ])->values(),
             'parties_summary' => $this->partiesSummary($matter),
             'broker_summary'  => $this->brokerSummary($matter),
-            // フェーズバッジ用: 現在のフェーズキーと、各フェーズの進捗（done/total）
-            'current_phase'   => $this->phases->currentPhase($matter)['key'] ?? null,
-            'phase_summary'   => $this->phases->summarize($matter),
+            // 集計バッジ: 完了 / 進行中 / 期日超過 / 未割当 / 全タスク数
+            'task_counters'   => $this->taskCounters($matter),
+        ];
+    }
+
+    /**
+     * タスク管理視点の集計。「未割当があるか」「超過があるか」を即視できる。
+     */
+    private function taskCounters(Matter $matter): array
+    {
+        $tasks = $matter->tasks;
+        $incomplete = $tasks->filter(fn (Task $t) => ! $t->isCompleted());
+
+        return [
+            'total'       => $tasks->count(),
+            'completed'   => $tasks->filter(fn (Task $t) => $t->isCompleted())->count(),
+            'in_progress' => $tasks->filter(fn (Task $t) => $t->status?->value === 'in_progress')->count(),
+            'overdue'     => $incomplete->filter(fn (Task $t) => $t->isOverdue())->count(),
+            'unassigned'  => $incomplete->filter(fn (Task $t) => $t->assignee_user_id === null)->count(),
         ];
     }
 

@@ -9,7 +9,6 @@
 tailwind.config = {
   theme: { extend: { colors: {
     brand: { navy: '#1A3A5C', blue: '#1565C0' },
-    status: { completed: '#10B981', 'in-progress': '#3B82F6', warning: '#F59E0B', danger: '#EF4444', 'not-started': '#D1D5DB' },
   }}},
 };
 </script>
@@ -56,11 +55,18 @@ tailwind.config = {
     </header>
 
     <main class="flex-1 overflow-x-auto p-4">
-      <p class="mb-3 text-xs text-gray-500">
-        フェーズバッジで「いまどのフェーズか」を即把握。ステッパーは
-        <span class="font-semibold">受任 → 書類準備 → 決済前 → 決済 → 後処理</span> で区切られ、
-        オレンジで強調された大きい円が「今やるべき工程」。
-      </p>
+      <div class="mb-3 rounded border bg-white p-3 text-xs text-gray-600">
+        <p class="mb-1"><span class="font-semibold text-gray-800">タスク管理視点。</span>
+          各セル=1タスク、色=状態、文字=担当者の頭文字。フェーズで束ねず平坦に並べているので
+          「実態は前後する」運用を阻害しない。</p>
+        <div class="mt-2 flex flex-wrap gap-3">
+          <span class="inline-flex items-center gap-1"><span class="inline-block h-4 w-4 rounded bg-emerald-500 text-[10px] font-bold leading-none text-white text-center pt-[3px]">田</span> 完了</span>
+          <span class="inline-flex items-center gap-1"><span class="inline-block h-4 w-4 rounded bg-blue-500 text-[10px] font-bold leading-none text-white text-center pt-[3px]">鈴</span> 進行中</span>
+          <span class="inline-flex items-center gap-1"><span class="inline-block h-4 w-4 rounded bg-red-500 ring-1 ring-red-700 text-[10px] font-bold leading-none text-white text-center pt-[3px]">佐</span> 期日超過</span>
+          <span class="inline-flex items-center gap-1"><span class="inline-block h-4 w-4 rounded bg-amber-100 ring-1 ring-amber-400 text-[10px] font-bold leading-none text-amber-800 text-center pt-[3px]">?</span> 未割当</span>
+          <span class="inline-flex items-center gap-1"><span class="inline-block h-4 w-4 rounded bg-white ring-1 ring-gray-300 text-[10px] font-bold leading-none text-gray-400 text-center pt-[3px]">伊</span> 未着手</span>
+        </div>
+      </div>
 
       <table class="w-full border-collapse text-sm">
         <thead class="bg-gray-50 text-xs text-gray-500">
@@ -69,9 +75,8 @@ tailwind.config = {
             <th class="px-2 py-2 text-left">依頼元</th>
             <th class="px-2 py-2 text-left">売主→買主</th>
             <th class="px-2 py-2 text-left">決済日</th>
-            <th class="px-2 py-2 text-left">いま</th>
-            <th class="px-2 py-2 text-left">進捗</th>
-            <th class="px-2 py-2 text-right">%</th>
+            <th class="px-2 py-2 text-left">集計</th>
+            <th class="px-2 py-2 text-left">タスク</th>
             <th class="px-2 py-2 text-left">次工程</th>
             <th class="px-2 py-2 text-left">主担当</th>
           </tr>
@@ -83,122 +88,165 @@ tailwind.config = {
 </div>
 
 <script>
-// ====== フェーズ定義（config/matter.php phases と一致） ======
-const PHASES = [
-  { key:'reception',      label:'受任',     codes:[1,2,3] },
-  { key:'preparation',    label:'書類準備', codes:[4,5,6,7] },
-  { key:'pre_settlement', label:'決済前',   codes:[8,9,10,11] },
-  { key:'settlement',     label:'決済',     codes:[12] },
-  { key:'post',           label:'後処理',   codes:[13,14,15,16] },
-];
-
-const PHASE_BADGE = {
-  reception:      'bg-gray-100 text-gray-700',
-  preparation:    'bg-blue-100 text-blue-700',
-  pre_settlement: 'bg-amber-100 text-amber-800',
-  settlement:     'bg-red-100 text-red-700',
-  post:           'bg-emerald-100 text-emerald-700',
-};
-
-// ====== 状態 → 色＋形状 ======
-const STATE_CLASS = {
-  completed:    'bg-status-completed',
-  in_progress:  'bg-status-in-progress ring-1 ring-blue-700',
-  next:         'bg-status-warning ring-2 ring-amber-700 ring-offset-1',
-  overdue:      'bg-status-danger ring-2 ring-red-800 ring-offset-1',
-  not_started:  'border-2 border-status-not-started bg-white',
-};
-
-// ====== モックデータ ======
-// stepper: { code, state }, current_phase: phase.key, next: { name, planned_date, days_left }
+// ====== 状態 ====================================================
+// 各タスク: { code, state, assignee }
+//   state: completed | in_progress | overdue | not_started
+//   assignee: 担当者名 / null（null = 未割当 → 黄背景 "?"）
 const STAFF = ['田中','佐藤','鈴木','伊藤','高橋'];
+
+// ====== モックデータ ============================================
+function mkT(code, state, assignee) {
+  return { code, state, assignee };
+}
 
 const matters = [
   { num:'2026010101', broker:'三井不動産', parties:'山田太郎 → 佐藤次郎', settle:'11/05(水) 09:30',
-    main:'田中', percent:44, current:'preparation',
-    next:{name:'必要書類一覧送付', date:'2026-11-01', days:4},
-    progress:{1:'completed',2:'completed',3:'completed',4:'next',5:'not_started',6:'not_started',7:'not_started',8:'not_started',9:'not_started',10:'not_started',11:'not_started',12:'not_started',13:'not_started',14:'not_started',15:'not_started',16:'not_started'} },
+    main:'田中', next:{name:'必要書類一覧送付', date:'2026-11-01', days:4},
+    tasks:[
+      mkT(1,'completed','田中'), mkT(2,'completed','田中'), mkT(3,'completed','田中'),
+      mkT(4,'in_progress','田中'), mkT(5,'not_started','佐藤'), mkT(6,'not_started','鈴木'),
+      mkT(7,'not_started','田中'), mkT(8,'not_started','田中'), mkT(9,'not_started','田中'),
+      mkT(10,'not_started','田中'), mkT(11,'not_started','田中'), mkT(12,'not_started','田中'),
+      mkT(13,'not_started','鈴木'), mkT(14,'not_started','田中'), mkT(15,'not_started','田中'),
+      mkT(16,'not_started','田中'),
+    ]},
 
   { num:'2026010102', broker:'住友不動産販売', parties:'三井法人 → 個人A', settle:'11/05(水) 14:00',
-    main:'伊藤', percent:88, current:'post',
-    next:{name:'受領書保存', date:'2026-11-12', days:15},
-    progress:{1:'completed',2:'completed',3:'completed',4:'completed',5:'completed',6:'completed',7:'completed',8:'completed',9:'completed',10:'completed',11:'completed',12:'completed',13:'completed',14:'completed',15:'next',16:'not_started'} },
+    main:'伊藤', next:{name:'受領書保存', date:'2026-11-12', days:15},
+    tasks:[
+      mkT(1,'completed','伊藤'), mkT(2,'completed','伊藤'), mkT(3,'completed','伊藤'),
+      mkT(4,'completed','伊藤'), mkT(5,'completed','伊藤'), mkT(6,'completed','高橋'),
+      mkT(7,'completed','伊藤'), mkT(8,'completed','伊藤'), mkT(9,'completed','伊藤'),
+      mkT(10,'completed','伊藤'), mkT(11,'completed','伊藤'), mkT(12,'completed','伊藤'),
+      mkT(13,'completed','高橋'), mkT(14,'completed','伊藤'), mkT(15,'in_progress','伊藤'),
+      mkT(16,'not_started','伊藤'),
+    ]},
 
   { num:'2026010103', broker:'カチタス株式会社', parties:'カチタス → 鈴木次郎', settle:'11/06(木) 10:00',
-    main:'佐藤', percent:36, current:'preparation',
-    next:{name:'2回目書類受領（売主）', date:'2026-10-30', days:2},
-    progress:{1:'completed',2:'completed',3:'completed',4:'completed',5:'next',7:'not_started',8:'not_started',9:'not_started',10:'not_started',11:'not_started',12:'not_started',14:'not_started',15:'not_started',16:'not_started'} },
+    main:'佐藤', next:{name:'2回目書類受領（売主）', date:'2026-10-30', days:2},
+    tasks:[
+      mkT(1,'completed','佐藤'), mkT(2,'completed','佐藤'), mkT(3,'completed','佐藤'),
+      mkT(4,'completed','佐藤'), mkT(5,'overdue','佐藤'), mkT(7,'not_started','佐藤'),
+      mkT(8,'not_started',null), mkT(9,'not_started','佐藤'), mkT(10,'not_started','佐藤'),
+      mkT(11,'not_started',null), mkT(12,'not_started','佐藤'), mkT(14,'not_started','佐藤'),
+      mkT(15,'not_started','佐藤'), mkT(16,'not_started','佐藤'),
+    ]},
 
   { num:'2026010104', broker:'みずほ信託', parties:'高橋三郎 → 法人B', settle:'11/07(金) 13:30',
-    main:'鈴木', percent:13, current:'reception',
-    next:{name:'初回書類受領', date:'2026-10-26', days:-2},
-    progress:{1:'completed',2:'completed',3:'overdue',4:'not_started',6:'not_started',7:'not_started',8:'not_started',9:'not_started',10:'not_started',11:'not_started',12:'not_started',13:'not_started',14:'not_started',15:'not_started',16:'not_started'} },
+    main:'鈴木', next:{name:'初回書類受領', date:'2026-10-26', days:-2},
+    tasks:[
+      mkT(1,'completed','鈴木'), mkT(2,'completed','鈴木'), mkT(3,'overdue','鈴木'),
+      mkT(4,'not_started','鈴木'), mkT(6,'not_started',null), mkT(7,'not_started','鈴木'),
+      mkT(8,'not_started','鈴木'), mkT(9,'not_started',null), mkT(10,'not_started','鈴木'),
+      mkT(11,'not_started','鈴木'), mkT(12,'not_started','鈴木'), mkT(13,'not_started',null),
+      mkT(14,'not_started','鈴木'), mkT(15,'not_started','鈴木'), mkT(16,'not_started','鈴木'),
+    ]},
 
   { num:'2026010105', broker:'積水ハウス', parties:'積水ハウス → 個人C', settle:'11/08(土) 09:00',
-    main:'伊藤', percent:69, current:'pre_settlement',
-    next:{name:'前日連絡', date:'2026-11-07', days:10},
-    progress:{1:'completed',2:'completed',3:'completed',4:'completed',5:'completed',6:'completed',7:'completed',8:'completed',9:'next',10:'not_started',11:'not_started',12:'not_started',13:'not_started',14:'not_started',15:'not_started',16:'not_started'} },
+    main:'伊藤', next:{name:'前日連絡', date:'2026-11-07', days:10},
+    tasks:[
+      mkT(1,'completed','伊藤'), mkT(2,'completed','伊藤'), mkT(3,'completed','伊藤'),
+      mkT(4,'completed','伊藤'), mkT(5,'completed','伊藤'), mkT(6,'completed','高橋'),
+      mkT(7,'completed','伊藤'), mkT(8,'completed','伊藤'), mkT(9,'in_progress','伊藤'),
+      mkT(10,'not_started','伊藤'), mkT(11,'not_started','伊藤'), mkT(12,'not_started','伊藤'),
+      mkT(13,'not_started','高橋'), mkT(14,'not_started','伊藤'), mkT(15,'not_started','伊藤'),
+      mkT(16,'not_started','伊藤'),
+    ]},
 
   { num:'2026010106', broker:'フラックス', parties:'個人D → フラックス', settle:'11/10(月) 11:00',
-    main:'田中', percent:0, current:'reception',
-    next:{name:'当事者情報', date:'2026-10-29', days:1},
-    progress:{1:'next',2:'not_started',3:'not_started',4:'not_started',5:'not_started',6:'not_started',7:'not_started',8:'not_started',9:'not_started',10:'not_started',11:'not_started',12:'not_started',13:'not_started',14:'not_started',15:'not_started',16:'not_started'} },
+    main:'田中', next:{name:'当事者情報', date:'2026-10-29', days:1},
+    tasks:[
+      mkT(1,'not_started','田中'), mkT(2,'not_started','田中'), mkT(3,'not_started',null),
+      mkT(4,'not_started',null), mkT(5,'not_started',null), mkT(6,'not_started',null),
+      mkT(7,'not_started','田中'), mkT(8,'not_started','田中'), mkT(9,'not_started','田中'),
+      mkT(10,'not_started','田中'), mkT(11,'not_started','田中'), mkT(12,'not_started','田中'),
+      mkT(13,'not_started',null), mkT(14,'not_started','田中'), mkT(15,'not_started','田中'),
+      mkT(16,'not_started','田中'),
+    ]},
 
   { num:'2026010107', broker:null, parties:'個人E → 個人F', settle:'11/12(水) 15:00',
-    main:'佐藤', percent:25, current:'preparation',
-    next:{name:'必要書類一覧送付', date:'2026-10-30', days:2},
-    progress:{1:'completed',2:'completed',3:'completed',4:'next',5:'not_started',7:'not_started',8:'not_started',9:'not_started',10:'not_started',11:'not_started',12:'not_started',14:'not_started',15:'not_started',16:'not_started'} },
+    main:'佐藤', next:{name:'必要書類一覧送付', date:'2026-10-30', days:2},
+    tasks:[
+      mkT(1,'completed','佐藤'), mkT(2,'completed','佐藤'), mkT(3,'completed','佐藤'),
+      mkT(4,'in_progress','佐藤'), mkT(5,'not_started','佐藤'), mkT(7,'not_started','佐藤'),
+      mkT(8,'not_started','佐藤'), mkT(9,'not_started','佐藤'), mkT(10,'not_started','佐藤'),
+      mkT(11,'not_started','佐藤'), mkT(12,'not_started','佐藤'), mkT(14,'not_started','佐藤'),
+      mkT(15,'not_started','佐藤'), mkT(16,'not_started','佐藤'),
+    ]},
 
   { num:'2026010108', broker:'三菱UFJ銀行', parties:'個人G → 個人H', settle:'11/15(土) 09:30',
-    main:'鈴木', percent:54, current:'settlement',
-    next:{name:'決済・登記申請', date:'2026-11-15', days:18},
-    progress:{1:'completed',2:'completed',3:'completed',4:'completed',5:'completed',7:'completed',8:'completed',9:'in_progress',10:'in_progress',11:'in_progress',12:'next',14:'not_started',15:'not_started',16:'not_started'} },
+    main:'鈴木', next:{name:'決済・登記申請', date:'2026-11-15', days:18},
+    tasks:[
+      mkT(1,'completed','鈴木'), mkT(2,'completed','鈴木'), mkT(3,'completed','鈴木'),
+      mkT(4,'completed','鈴木'), mkT(5,'completed','鈴木'), mkT(7,'completed','鈴木'),
+      mkT(8,'in_progress','鈴木'), mkT(9,'in_progress','鈴木'), mkT(10,'in_progress','鈴木'),
+      mkT(11,'not_started','鈴木'), mkT(12,'not_started','鈴木'), mkT(14,'not_started','鈴木'),
+      mkT(15,'not_started','鈴木'), mkT(16,'not_started','鈴木'),
+    ]},
 ];
 
-// ====== 描画関数 ======
+// ====== 描画 ====================================================
 function dueClass(d){ if(d===null||d===undefined) return 'text-gray-500';
   if(d<0) return 'font-bold text-red-600'; if(d<=2) return 'text-red-600';
   if(d<=5) return 'text-amber-600'; return 'text-gray-500'; }
 function dueLabel(d){ if(d===null||d===undefined) return '';
   if(d<0) return ` ${Math.abs(d)}日超過`; if(d===0) return ' 本日'; return ` あと${d}日`; }
 
-function renderStepper(progress, currentPhase) {
-  const html = PHASES.map((phase) => {
-    const inPhase = phase.codes
-      .map((c) => ({ code: c, state: progress[c] }))
-      .filter((x) => x.state !== undefined);
+function cellClass(t) {
+  if (t.state === 'completed')   return 'bg-emerald-500 text-white';
+  if (t.state === 'overdue')     return 'bg-red-500 ring-1 ring-red-700 text-white';
+  if (t.state === 'in_progress') return 'bg-blue-500 text-white';
+  if (!t.assignee)               return 'bg-amber-100 ring-1 ring-amber-400 text-amber-800';
+  return 'bg-white ring-1 ring-gray-300 text-gray-400';
+}
 
-    if (inPhase.length === 0) {
-      // 業務種別で対象外のフェーズ
-      return `<div class="flex flex-col items-center justify-center px-1">
-        <span class="mb-0.5 text-[9px] text-gray-300">${phase.label}</span>
-        <span class="inline-block h-3 w-6 rounded-sm" style="background-image:repeating-linear-gradient(45deg,#E5E7EB 0 2px,transparent 2px 6px);"></span>
-      </div>`;
-    }
+function renderGrid(tasks) {
+  return `<div class="inline-flex flex-wrap gap-0.5">` +
+    tasks.map((t) => {
+      const initial = !t.assignee ? '?' : t.assignee[0];
+      const tooltip = `#${t.code}\n担当: ${t.assignee ?? '未割当'}\n状態: ${t.state}`;
+      return `<a href="matter.html" title="${tooltip}"
+        class="flex items-center justify-center rounded text-[10px] font-bold leading-none ${cellClass(t)}"
+        style="width:22px;height:22px;">${initial}</a>`;
+    }).join('') +
+  `</div>`;
+}
 
-    const done = inPhase.filter((x) => x.state === 'completed').length;
-    const isCurrent = phase.key === currentPhase;
-    const labelCls = isCurrent ? 'font-bold text-brand-blue' : 'text-gray-400';
-    const groupCls = isCurrent ? 'bg-amber-50 ring-1 ring-amber-300' : '';
+function counters(tasks) {
+  const incomplete = tasks.filter((t) => t.state !== 'completed');
+  return {
+    total:       tasks.length,
+    completed:   tasks.filter((t) => t.state === 'completed').length,
+    in_progress: tasks.filter((t) => t.state === 'in_progress').length,
+    overdue:     incomplete.filter((t) => t.state === 'overdue').length,
+    unassigned:  incomplete.filter((t) => !t.assignee).length,
+  };
+}
 
-    const dots = inPhase.map((x) => {
-      const isNext = x.state === 'next';
-      const size = isNext ? 'w-4 h-4' : 'w-2.5 h-2.5';
-      return `<span class="inline-block ${size} rounded-full ${STATE_CLASS[x.state]}" title="task ${x.code}"></span>`;
-    }).join('');
+function badge(tone, symbol, value, title) {
+  const tones = {
+    red:'bg-red-100 text-red-800 ring-red-300',
+    amber:'bg-amber-100 text-amber-800 ring-amber-300',
+    blue:'bg-blue-100 text-blue-800 ring-blue-300',
+    emerald:'bg-emerald-100 text-emerald-800 ring-emerald-300',
+  };
+  return `<span title="${title}" class="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 ring-1 ${tones[tone]}">
+    <span aria-hidden>${symbol}</span><span class="font-semibold">${value}</span>
+  </span>`;
+}
 
-    return `<div class="flex flex-col items-center">
-      <span class="mb-0.5 whitespace-nowrap text-[10px] tabular-nums ${labelCls}">${phase.label} ${done}/${inPhase.length}</span>
-      <div class="flex items-center gap-1 rounded px-1.5 py-1 ${groupCls}">${dots}</div>
-    </div>`;
-  }).join('<div class="self-stretch border-l border-gray-200"></div>');
-
-  return `<div class="inline-flex items-stretch gap-2">${html}</div>`;
+function renderCounters(c) {
+  const parts = [];
+  if (c.overdue > 0)     parts.push(badge('red',     '⚠', c.overdue,    '期日超過'));
+  if (c.unassigned > 0)  parts.push(badge('amber',   '?', c.unassigned, '未割当'));
+  if (c.in_progress > 0) parts.push(badge('blue',    '◐', c.in_progress,'進行中'));
+  parts.push(badge('emerald', '✓', c.completed, '完了'));
+  parts.push(`<span class="text-gray-400">/${c.total}</span>`);
+  return `<div class="flex items-center gap-1.5 text-xs tabular-nums">${parts.join('')}</div>`;
 }
 
 function renderRow(m) {
-  const phaseLabel = PHASES.find((p) => p.key === m.current)?.label ?? '—';
-  const badgeCls = PHASE_BADGE[m.current] ?? 'bg-gray-100 text-gray-700';
+  const c = counters(m.tasks);
   const staffOptions = STAFF.map((s) => `<option ${s===m.main?'selected':''}>${s}</option>`).join('');
 
   return `<tr class="border-b align-middle hover:bg-gray-50">
@@ -206,9 +254,8 @@ function renderRow(m) {
     <td class="max-w-[160px] truncate px-2 py-2 text-gray-700">${m.broker ?? '<span class="text-gray-300">—</span>'}</td>
     <td class="max-w-[180px] truncate px-2 py-2 text-gray-700">${m.parties}</td>
     <td class="px-2 py-2 text-gray-700">${m.settle}</td>
-    <td class="px-2 py-2"><span class="inline-block rounded px-2 py-0.5 text-xs font-semibold ${badgeCls}">${phaseLabel}</span></td>
-    <td class="px-2 py-2">${renderStepper(m.progress, m.current)}</td>
-    <td class="px-2 py-2 text-right tabular-nums text-gray-700">${m.percent}%</td>
+    <td class="px-2 py-2">${renderCounters(c)}</td>
+    <td class="px-2 py-2">${renderGrid(m.tasks)}</td>
     <td class="max-w-[260px] truncate px-2 py-2">
       <span class="text-gray-700">${m.next.name}</span>
       <span class="ml-2 text-xs ${dueClass(m.next.days)}">${m.next.date}${dueLabel(m.next.days)}</span>

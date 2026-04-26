@@ -26,16 +26,19 @@ export type TaskStepData = {
     state: TaskState;
     role_code?: number | null;
     assignee?: string | null;
+    assignee_initial?: string | null;
+    is_unassigned?: boolean;
     planned_date?: string | null;
+    days_left?: number | null;
 };
 
-export type PhaseDef = {
-    key: string;
-    label: string;
-    codes: number[];
+export type TaskCounters = {
+    total: number;
+    completed: number;
+    in_progress: number;
+    overdue: number;
+    unassigned: number;
 };
-
-export type PhaseSummary = PhaseDef & { total: number; done: number };
 
 export type MatterRow = {
     id: number;
@@ -53,11 +56,10 @@ export type MatterRow = {
         days_left: number | null;
         state: TaskState;
     } | null;
-    stepper: TaskStepData[];
+    tasks: TaskStepData[];
     parties_summary: string;
     broker_summary: string | null;
-    current_phase: string | null;
-    phase_summary: PhaseSummary[];
+    task_counters: TaskCounters;
 };
 
 export type StaffOption = { id: number; name: string };

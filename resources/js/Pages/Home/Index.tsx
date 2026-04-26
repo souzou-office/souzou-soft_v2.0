@@ -1,33 +1,25 @@
 import { Link } from '@inertiajs/react';
 import { AppLayout } from '@/Layouts/AppLayout';
-import { TaskStepper } from '@/Components/TaskStepper';
+import { TaskGrid } from '@/Components/TaskGrid';
+import { TaskCounters } from '@/Components/TaskCounters';
 import { InlineSelect } from '@/Components/InlineSelect';
-import type { MatterRow, PhaseDef, StaffOption } from '@/Types';
+import type { MatterRow, StaffOption } from '@/Types';
 
 /**
- * 3.2 ホーム画面 — 進捗中心レイアウト（フェーズ可視化版）。
+ * 3.2 ホーム画面 — タスク管理視点版。
  *
  * 列: 事件番号 / 依頼元 / 売主→買主 / 決済日 /
- *      フェーズバッジ / 進捗ステッパー(フェーズ区切り) / 次工程+期日 / 主担当(select)
+ *      集計バッジ(超過/未割当/進行中/完了/全) / タスクグリッド(色=状態 文字=担当者) /
+ *      次工程+期日 / 主担当(InlineSelect)
  *
- * フェーズバッジで「いまどこ」が一目で分かり、ステッパーは
- * 「フェーズ内のどの工程か」「次にやるべきか」を表現する。
+ * フェーズ抽象を撤廃。タスクは前後する運用なので、平坦な per-task 視覚化に。
  */
 type Props = {
     matters: {
         data: MatterRow[];
         links: { url: string | null; label: string; active: boolean }[];
     };
-    phases: PhaseDef[];
     staff: StaffOption[];
-};
-
-const phaseColors: Record<string, string> = {
-    reception:      'bg-gray-100 text-gray-700',
-    preparation:    'bg-blue-100 text-blue-700',
-    pre_settlement: 'bg-amber-100 text-amber-800',
-    settlement:     'bg-red-100 text-red-700',
-    post:           'bg-emerald-100 text-emerald-700',
 };
 
 function dueClass(daysLeft: number | null | undefined): string {
@@ -45,18 +37,19 @@ function dueLabel(daysLeft: number | null | undefined): string {
     return ` あと${daysLeft}日`;
 }
 
-export default function HomeIndex({ matters, phases, staff }: Props) {
+export default function HomeIndex({ matters, staff }: Props) {
     const staffOptions = staff.map((s) => ({ value: s.id, label: s.name }));
-    const phaseLabel = (key: string | null) =>
-        phases.find((p) => p.key === key)?.label ?? '—';
 
     return (
         <AppLayout title="ホーム — 事件一覧">
             <div className="p-4">
-                <p className="mb-3 text-xs text-gray-500">
-                    フェーズバッジで「いまどのフェーズか」を即把握。ステッパーは受任→書類準備→決済前→決済→後処理で区切られ、
-                    オレンジで強調された円が「今やるべき工程」。
-                </p>
+                <div className="mb-3 rounded border bg-white p-2 text-xs text-gray-600">
+                    <p>
+                        <span className="font-semibold text-gray-800">タスク管理視点。</span>
+                        各セル = 1タスク。色は状態（緑=完了 青=進行中 赤=超過 黄=未割当 白=未着手）、
+                        中の文字は担当者の頭文字。行頭バッジで「超過 / 未割当 / 進行中 / 完了 / 全件」を即視。
+                    </p>
+                </div>
 
                 <table className="w-full border-collapse text-sm">
                     <thead className="bg-gray-50 text-xs text-gray-500">
@@ -65,9 +58,8 @@ export default function HomeIndex({ matters, phases, staff }: Props) {
                             <th className="px-2 py-2 text-left">依頼元</th>
                             <th className="px-2 py-2 text-left">売主→買主</th>
                             <th className="px-2 py-2 text-left">決済日</th>
-                            <th className="px-2 py-2 text-left">いま</th>
-                            <th className="px-2 py-2 text-left">進捗</th>
-                            <th className="px-2 py-2 text-right">%</th>
+                            <th className="px-2 py-2 text-left">集計</th>
+                            <th className="px-2 py-2 text-left">タスク</th>
                             <th className="px-2 py-2 text-left">次工程</th>
                             <th className="px-2 py-2 text-left">主担当</th>
                         </tr>
@@ -96,27 +88,10 @@ export default function HomeIndex({ matters, phases, staff }: Props) {
                                         : '—'}
                                 </td>
                                 <td className="px-2 py-2">
-                                    <span
-                                        className={`inline-block rounded px-2 py-0.5 text-xs font-semibold ${
-                                            m.current_phase
-                                                ? phaseColors[m.current_phase] ?? 'bg-gray-100 text-gray-700'
-                                                : 'bg-gray-100 text-gray-400'
-                                        }`}
-                                    >
-                                        {phaseLabel(m.current_phase)}
-                                    </span>
+                                    <TaskCounters counters={m.task_counters} />
                                 </td>
                                 <td className="px-2 py-2">
-                                    <TaskStepper
-                                        matterId={m.id}
-                                        steps={m.stepper}
-                                        phases={phases}
-                                        compact
-                                        nextTaskId={m.next_task?.id}
-                                    />
-                                </td>
-                                <td className="px-2 py-2 text-right tabular-nums text-gray-700">
-                                    {m.progress.percent}%
+                                    <TaskGrid matterId={m.id} tasks={m.tasks} />
                                 </td>
                                 <td className="max-w-[260px] truncate px-2 py-2">
                                     {m.next_task ? (
