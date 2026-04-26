@@ -21,12 +21,21 @@ export type TaskState = 'completed' | 'in_progress' | 'overdue' | 'next' | 'not_
 
 export type TaskStepData = {
     id: number;
+    task_code: number;
     name: string;
     state: TaskState;
     role_code?: number | null;
     assignee?: string | null;
     planned_date?: string | null;
 };
+
+export type PhaseDef = {
+    key: string;
+    label: string;
+    codes: number[];
+};
+
+export type PhaseSummary = PhaseDef & { total: number; done: number };
 
 export type MatterRow = {
     id: number;
@@ -46,4 +55,9 @@ export type MatterRow = {
     } | null;
     stepper: TaskStepData[];
     parties_summary: string;
+    broker_summary: string | null;
+    current_phase: string | null;
+    phase_summary: PhaseSummary[];
 };
+
+export type StaffOption = { id: number; name: string };

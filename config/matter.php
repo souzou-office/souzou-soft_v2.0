@@ -49,4 +49,17 @@ return [
         6 => 'その他',
         7 => '確認者',
     ],
+
+    /**
+     * フェーズ定義。task_code をフェーズにグルーピングして
+     * 「今どのフェーズか」を一覧で視認できるようにする。
+     * UI の TaskStepper と「フェーズ」バッジが共通参照する一次情報源。
+     */
+    'phases' => [
+        ['key' => 'reception',      'label' => '受任',     'codes' => [1, 2, 3]],
+        ['key' => 'preparation',    'label' => '書類準備', 'codes' => [4, 5, 6, 7]],
+        ['key' => 'pre_settlement', 'label' => '決済前',   'codes' => [8, 9, 10, 11]],
+        ['key' => 'settlement',     'label' => '決済',     'codes' => [12]],
+        ['key' => 'post',           'label' => '後処理',   'codes' => [13, 14, 15, 16]],
+    ],
 ];
