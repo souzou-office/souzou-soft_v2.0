@@ -7,9 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = {
-  theme: { extend: { colors: {
-    brand: { navy: '#1A3A5C', blue: '#1565C0' },
-  }}},
+  theme: { extend: { colors: { brand: { navy: '#1A3A5C', blue: '#1565C0' } } } },
 };
 </script>
 <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
@@ -24,7 +22,7 @@ tailwind.config = {
     </div>
     <nav class="flex-1 px-2 py-2 text-sm">
       <a href="home.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">🏠 ホーム</a>
-      <a href="my.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">📋 マイビュー</a>
+      <a href="my.html"   class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">📋 マイビュー</a>
       <a href="team.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">👥 チームビュー</a>
       <a href="matrix.html" class="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-100">🔲 進捗マトリクス</a>
     </nav>
@@ -32,239 +30,300 @@ tailwind.config = {
 
   <div class="flex flex-1 flex-col">
     <header class="flex h-12 items-center justify-between border-b bg-white px-4">
-      <h1 class="text-base font-semibold">事件 2026010101 — 並列処理対応版</h1>
+      <h1 class="text-base font-semibold">事件 2026010101</h1>
     </header>
 
-    <!-- 第1層: サマリーバー -->
-    <div class="sticky top-0 z-30 bg-white">
-      <div class="flex h-10 items-center gap-4 border-b bg-white px-4 text-sm">
+    <!-- サマリー -->
+    <div class="border-b bg-white">
+      <div class="flex h-10 items-center gap-4 px-4 text-sm">
         <span class="font-mono font-semibold text-brand-navy">2026010101</span>
         <span class="text-gray-700">山田太郎・山田花子 → 佐藤次郎</span>
-        <span class="text-gray-600">決済: 11/05(水) 09:30</span>
-        <span class="rounded bg-gray-100 px-1.5 py-0.5 text-xs">抹消・移転・設定</span>
-        <span class="ml-auto text-gray-700">主担当: 田中</span>
+        <span class="text-gray-500">11/05(水) 09:30 決済</span>
+        <span class="text-gray-500">抹消・移転・設定</span>
+        <span class="ml-auto text-gray-500">主担当: 田中</span>
       </div>
 
-      <!-- 第2層: 4 マイルストーンバー -->
-      <div class="flex items-stretch gap-2 overflow-x-auto border-b bg-white px-4 py-2">
-
-        <div class="flex items-center gap-2">
-          <div class="rounded bg-emerald-50 px-2 py-1 ring-1 ring-emerald-300">
-            <div class="text-[10px] font-semibold text-emerald-700">事前郵送確定</div>
-            <div class="font-mono text-xs text-gray-700">2026-10-26</div>
-            <div class="text-[10px] text-gray-500">✓ 完了</div>
-          </div>
-          <span class="text-gray-300">→</span>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <div class="rounded bg-amber-50 px-2 py-1 ring-1 ring-amber-300">
-            <div class="text-[10px] font-semibold text-amber-700">押印返送受領</div>
-            <div class="font-mono text-xs text-gray-700">2026-11-03</div>
-            <div class="text-[10px] text-gray-500">あと2日</div>
-          </div>
-          <span class="text-gray-300">→</span>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <div class="rounded bg-red-50 px-2 py-1 ring-1 ring-red-300">
-            <div class="text-[10px] font-semibold text-red-700">融資受領</div>
-            <div class="font-mono text-xs text-gray-700">2026-11-03</div>
-            <div class="text-[10px] text-gray-500">あと2日 ⚠</div>
-          </div>
-          <span class="text-gray-300">→</span>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <div class="rounded bg-white px-2 py-1 ring-1 ring-gray-200">
-            <div class="text-[10px] font-semibold text-gray-600">全書類確定</div>
-            <div class="font-mono text-xs text-gray-700">2026-11-04</div>
-            <div class="text-[10px] text-gray-500">あと3日</div>
-          </div>
-          <span class="text-gray-300">→</span>
-        </div>
-
-        <div class="rounded bg-brand-navy px-2 py-1 text-white">
-          <div class="text-[10px] font-semibold">決済日</div>
-          <div class="font-mono text-xs">11/05(水)</div>
-        </div>
+      <!-- マイルストーン: 軽量・横並び -->
+      <div class="flex flex-wrap items-center gap-1 border-t px-4 py-1.5 text-xs">
+        <span class="text-gray-400">締切:</span>
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 text-emerald-700">
+          <span class="size-1.5 rounded-full bg-emerald-500"></span>
+          事前郵送 <span class="font-mono">10/26</span>
+        </span>
+        <span class="text-gray-300">·</span>
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 text-amber-700">
+          <span class="size-1.5 rounded-full bg-amber-500"></span>
+          押印返送 <span class="font-mono">11/03</span>
+          <span class="text-gray-500">(あと2日)</span>
+        </span>
+        <span class="text-gray-300">·</span>
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 text-red-700">
+          <span class="size-1.5 rounded-full bg-red-500"></span>
+          融資受領 <span class="font-mono">11/03</span>
+          <span>(あと2日 ⚠)</span>
+        </span>
+        <span class="text-gray-300">·</span>
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 text-gray-600">
+          <span class="size-1.5 rounded-full bg-gray-300"></span>
+          全確定 <span class="font-mono">11/04</span>
+        </span>
       </div>
     </div>
 
-    <main class="flex-1 overflow-y-auto">
-      <p class="px-4 pt-3 text-xs text-gray-500">
-        ロール別レーン — 各ロールの<span class="font-semibold">タスク</span>と<span class="font-semibold">書類</span>が
-        独立に並列で進む。書類状態はインラインで切替（依存書類が確定していないと「確定」に遷移できない）。
-      </p>
-
-      <div class="space-y-3 p-4">
+    <!-- レーン: ロール別の単一リスト -->
+    <main class="flex-1 overflow-y-auto bg-gray-50">
+      <div class="mx-auto max-w-5xl space-y-2 p-4">
 
         <!-- 共通 -->
-        <section class="rounded border-l-4 border-l-gray-400 bg-white shadow-sm">
-          <header class="flex items-center justify-between border-b px-3 py-2">
-            <div class="flex items-center gap-3">
-              <h3 class="text-sm font-semibold">共通（事務所内 / 関係者横断）</h3>
-              <span class="text-xs text-gray-500">タスク 5/8 · 書類 1/3</span>
-            </div>
+        <section class="rounded bg-white">
+          <header class="flex items-baseline gap-3 border-b px-4 py-2">
+            <h3 class="text-sm font-semibold">共通</h3>
+            <span class="text-xs text-gray-400">5/8 タスク · 1/3 書類</span>
           </header>
-          <div class="grid grid-cols-2 gap-3 p-3">
-            <div>
-              <div class="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">タスク</div>
-              <ul class="space-y-1 text-sm">
-                <li class="flex items-center gap-2"><span class="inline-block size-2 rounded-full bg-emerald-500"></span><span class="flex-1 truncate">事件受任</span><span class="text-xs text-gray-500">田中</span><span class="w-24 text-right text-xs text-gray-500">10/05</span></li>
-                <li class="flex items-center gap-2"><span class="inline-block size-2 rounded-full bg-emerald-500"></span><span class="flex-1 truncate">スケジュール入力</span><span class="text-xs text-gray-500">田中</span><span class="w-24 text-right text-xs text-gray-500">11/02</span></li>
-                <li class="flex items-center gap-2"><span class="inline-block size-2 rounded-full bg-blue-500"></span><span class="flex-1 truncate">前日連絡</span><span class="text-xs text-gray-500">田中</span><span class="w-24 text-right text-xs text-amber-600">11/04 あと3日</span></li>
-                <li class="flex items-center gap-2"><span class="inline-block size-2 rounded-full border border-gray-300"></span><span class="flex-1 truncate">受付カード出力</span><span class="text-xs text-gray-500">田中</span><span class="w-24 text-right text-xs text-amber-600">11/04 あと3日</span></li>
-                <li class="flex items-center gap-2"><span class="inline-block size-2 rounded-full border border-gray-300"></span><span class="flex-1 truncate">決済・登記申請</span><span class="text-xs text-gray-500">田中</span><span class="w-24 text-right text-xs text-amber-600">11/05 あと4日</span></li>
-              </ul>
-            </div>
-            <div>
-              <div class="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">書類</div>
-              <ul class="space-y-1 text-sm">
-                <li class="flex items-center gap-2"><span class="inline-block w-12 shrink-0 rounded bg-cyan-50 px-1 text-center text-[10px] text-cyan-700">収集</span><span class="flex-1 truncate">登記情報</span><select class="rounded border-0 bg-emerald-100 px-1 py-0 text-xs text-emerald-800 ring-1 ring-gray-200"><option>確定</option></select><span class="w-24 text-right text-xs text-gray-500">10/22</span></li>
-                <li class="flex items-center gap-2"><span class="inline-block w-12 shrink-0 rounded bg-cyan-50 px-1 text-center text-[10px] text-cyan-700">収集</span><span class="flex-1 truncate">公図</span><select class="rounded border-0 bg-emerald-100 px-1 py-0 text-xs text-emerald-800 ring-1 ring-gray-200"><option>確定</option></select><span class="w-24 text-right text-xs text-gray-500">10/22</span></li>
-                <li class="flex items-center gap-2"><span class="inline-block w-12 shrink-0 rounded bg-cyan-50 px-1 text-center text-[10px] text-cyan-700">収集</span><span class="flex-1 truncate">評価証明書</span><select class="rounded border-0 bg-blue-100 px-1 py-0 text-xs text-blue-700 ring-1 ring-gray-200"><option>依頼済</option></select><span class="w-24 text-right text-xs text-amber-600">10/31 あと-1日</span></li>
-              </ul>
-            </div>
-          </div>
+          <ul class="divide-y divide-gray-100">
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full bg-emerald-500" title="完了"></span>
+              <span class="flex-1 truncate">事件受任</span>
+              <span class="w-12 text-xs text-gray-400">タスク</span>
+              <span class="w-16 text-xs text-gray-500">田中</span>
+              <span class="w-20 text-right font-mono text-xs text-gray-400">10/05</span>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full bg-emerald-500"></span>
+              <span class="flex-1 truncate">登記情報</span>
+              <span class="w-12 text-xs text-gray-400">収集</span>
+              <select class="w-20 rounded border-0 bg-transparent text-xs text-gray-500 focus:ring-0"><option>確定</option></select>
+              <span class="w-20 text-right font-mono text-xs text-gray-400">10/22</span>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full bg-emerald-500"></span>
+              <span class="flex-1 truncate">公図</span>
+              <span class="w-12 text-xs text-gray-400">収集</span>
+              <select class="w-20 rounded border-0 bg-transparent text-xs text-gray-500 focus:ring-0"><option>確定</option></select>
+              <span class="w-20 text-right font-mono text-xs text-gray-400">10/22</span>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full bg-blue-500"></span>
+              <span class="flex-1 truncate">評価証明書</span>
+              <span class="w-12 text-xs text-gray-400">収集</span>
+              <select class="w-20 rounded border-0 bg-transparent text-xs text-gray-500 focus:ring-0"><option>依頼済</option></select>
+              <span class="w-20 text-right font-mono text-xs text-amber-600">10/31</span>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full bg-blue-500"></span>
+              <span class="flex-1 truncate">前日連絡</span>
+              <span class="w-12 text-xs text-gray-400">タスク</span>
+              <span class="w-16 text-xs text-gray-500">田中</span>
+              <span class="w-20 text-right font-mono text-xs text-amber-600">11/04</span>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full border border-gray-300"></span>
+              <span class="flex-1 truncate text-gray-600">受付カード出力</span>
+              <span class="w-12 text-xs text-gray-400">タスク</span>
+              <span class="w-16 text-xs text-gray-500">田中</span>
+              <span class="w-20 text-right font-mono text-xs text-amber-600">11/04</span>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full border border-gray-300"></span>
+              <span class="flex-1 truncate text-gray-600">決済・登記申請</span>
+              <span class="w-12 text-xs text-gray-400">タスク</span>
+              <span class="w-16 text-xs text-gray-500">田中</span>
+              <span class="w-20 text-right font-mono text-xs text-amber-600">11/05</span>
+            </li>
+          </ul>
         </section>
 
         <!-- 売主 -->
-        <section class="rounded border-l-4 border-l-orange-400 bg-white shadow-sm">
-          <header class="flex items-center justify-between border-b px-3 py-2">
-            <div class="flex items-center gap-3">
-              <h3 class="text-sm font-semibold">売主</h3>
-              <span class="text-xs text-gray-500">タスク 2/3 · 書類 3/5</span>
-            </div>
+        <section class="rounded bg-white">
+          <header class="flex items-baseline gap-3 border-b px-4 py-2">
+            <span class="size-2 rounded-full bg-orange-400"></span>
+            <h3 class="text-sm font-semibold">売主</h3>
+            <span class="text-xs text-gray-400">2/3 タスク · 3/5 書類</span>
           </header>
-          <div class="grid grid-cols-2 gap-3 p-3">
-            <div>
-              <div class="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">タスク</div>
-              <ul class="space-y-1 text-sm">
-                <li class="flex items-center gap-2"><span class="inline-block size-2 rounded-full bg-emerald-500"></span><span class="flex-1 truncate">2回目書類受領（売主）</span><span class="text-xs text-gray-500">佐藤</span><span class="w-24 text-right text-xs text-gray-500">10/29</span></li>
-                <li class="flex items-center gap-2"><span class="inline-block size-2 rounded-full bg-emerald-500"></span><span class="flex-1 truncate">本人確認書類等保存（売主）</span><span class="text-xs text-gray-500">佐藤</span><span class="w-24 text-right text-xs text-gray-500">10/30</span></li>
-                <li class="flex items-center gap-2"><span class="inline-block size-2 rounded-full border border-gray-300"></span><span class="flex-1 truncate">押印書類確認</span><span class="text-xs text-gray-500">佐藤</span><span class="w-24 text-right text-xs text-amber-600">11/03 あと2日</span></li>
-              </ul>
-            </div>
-            <div>
-              <div class="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">書類</div>
-              <ul class="space-y-1 text-sm">
-                <li class="flex items-center gap-2"><span class="inline-block w-12 shrink-0 rounded bg-cyan-50 px-1 text-center text-[10px] text-cyan-700">収集</span><span class="flex-1 truncate">売主印鑑証明書</span><select class="rounded border-0 bg-emerald-100 px-1 py-0 text-xs text-emerald-800 ring-1"><option>確定</option></select><span class="w-24 text-right text-xs text-gray-500">10/29</span></li>
-                <li class="flex items-center gap-2"><span class="inline-block w-12 shrink-0 rounded bg-cyan-50 px-1 text-center text-[10px] text-cyan-700">収集</span><span class="flex-1 truncate">売主住民票</span><select class="rounded border-0 bg-emerald-100 px-1 py-0 text-xs text-emerald-800 ring-1"><option>確定</option></select><span class="w-24 text-right text-xs text-gray-500">10/29</span></li>
-                <li class="flex items-center gap-2"><span class="inline-block w-12 shrink-0 rounded bg-cyan-50 px-1 text-center text-[10px] text-cyan-700">収集</span><span class="flex-1 truncate">登記識別情報通知 <span class="ml-1 rounded bg-emerald-100 px-1 text-[10px] text-emerald-700">預</span></span><select class="rounded border-0 bg-cyan-100 px-1 py-0 text-xs text-cyan-700 ring-1"><option>受領</option></select><span class="w-24 text-right text-xs text-gray-500">11/05</span></li>
-                <li class="flex items-center gap-2"><span class="inline-block w-12 shrink-0 rounded bg-violet-50 px-1 text-center text-[10px] text-violet-700">作成</span><span class="flex-1 truncate">売主用委任状（押印往復）</span><select class="rounded border-0 bg-emerald-100 px-1 py-0 text-xs text-emerald-800 ring-1"><option>確定</option></select><span class="w-24 text-right text-xs text-gray-500">10/26</span></li>
-                <li class="flex items-center gap-2"><span class="inline-block w-12 shrink-0 rounded bg-violet-50 px-1 text-center text-[10px] text-violet-700">作成</span><span class="flex-1 truncate">登記原因証明情報（売主押印分）</span><select class="rounded border-0 bg-amber-100 px-1 py-0 text-xs text-amber-800 ring-1"><option>ドラフト</option></select><span class="w-24 text-right text-xs text-amber-600">10/26 -2日超過</span></li>
-              </ul>
-            </div>
-          </div>
+          <ul class="divide-y divide-gray-100">
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full bg-emerald-500"></span>
+              <span class="flex-1 truncate">売主印鑑証明書</span>
+              <span class="w-12 text-xs text-gray-400">収集</span>
+              <select class="w-20 rounded border-0 bg-transparent text-xs text-gray-500 focus:ring-0"><option>確定</option></select>
+              <span class="w-20 text-right font-mono text-xs text-gray-400">10/29</span>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full bg-emerald-500"></span>
+              <span class="flex-1 truncate">売主住民票</span>
+              <span class="w-12 text-xs text-gray-400">収集</span>
+              <select class="w-20 rounded border-0 bg-transparent text-xs text-gray-500 focus:ring-0"><option>確定</option></select>
+              <span class="w-20 text-right font-mono text-xs text-gray-400">10/29</span>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full bg-cyan-500"></span>
+              <span class="flex-1 truncate">登記識別情報通知 <span class="ml-1 text-[10px] text-emerald-600">●預</span></span>
+              <span class="w-12 text-xs text-gray-400">収集</span>
+              <select class="w-20 rounded border-0 bg-transparent text-xs text-gray-500 focus:ring-0"><option>受領</option></select>
+              <span class="w-20 text-right font-mono text-xs text-gray-400">11/05</span>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full bg-emerald-500"></span>
+              <span class="flex-1 truncate">委任状（押印往復）</span>
+              <span class="w-12 text-xs text-gray-400">作成</span>
+              <select class="w-20 rounded border-0 bg-transparent text-xs text-gray-500 focus:ring-0"><option>確定</option></select>
+              <span class="w-20 text-right font-mono text-xs text-gray-400">10/26</span>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full bg-amber-500"></span>
+              <span class="flex-1 truncate">登記原因証明情報</span>
+              <span class="w-12 text-xs text-gray-400">作成</span>
+              <select class="w-20 rounded border-0 bg-transparent text-xs text-gray-500 focus:ring-0"><option>ドラフト</option></select>
+              <span class="w-20 text-right font-mono text-xs font-bold text-red-600">10/26</span>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full border border-gray-300"></span>
+              <span class="flex-1 truncate text-gray-600">押印書類確認</span>
+              <span class="w-12 text-xs text-gray-400">タスク</span>
+              <span class="w-16 text-xs text-gray-500">佐藤</span>
+              <span class="w-20 text-right font-mono text-xs text-amber-600">11/03</span>
+            </li>
+          </ul>
         </section>
 
         <!-- 買主 -->
-        <section class="rounded border-l-4 border-l-blue-400 bg-white shadow-sm">
-          <header class="flex items-center justify-between border-b px-3 py-2">
-            <div class="flex items-center gap-3">
-              <h3 class="text-sm font-semibold">買主</h3>
-              <span class="text-xs text-gray-500">タスク 1/2 · 書類 2/3</span>
-            </div>
+        <section class="rounded bg-white">
+          <header class="flex items-baseline gap-3 border-b px-4 py-2">
+            <span class="size-2 rounded-full bg-blue-400"></span>
+            <h3 class="text-sm font-semibold">買主</h3>
+            <span class="text-xs text-gray-400">1/2 タスク · 2/3 書類</span>
           </header>
-          <div class="grid grid-cols-2 gap-3 p-3">
-            <div>
-              <div class="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">タスク</div>
-              <ul class="space-y-1 text-sm">
-                <li class="flex items-center gap-2"><span class="inline-block size-2 rounded-full bg-emerald-500"></span><span class="flex-1 truncate">買主書類受領</span><span class="text-xs text-gray-500">鈴木</span><span class="w-24 text-right text-xs text-gray-500">11/02</span></li>
-                <li class="flex items-center gap-2"><span class="inline-block size-2 rounded-full border border-gray-300"></span><span class="flex-1 truncate">本人確認書類保存（買主）</span><span class="text-xs text-gray-500">鈴木</span><span class="w-24 text-right text-xs text-amber-600">11/04 あと3日</span></li>
-              </ul>
-            </div>
-            <div>
-              <div class="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">書類</div>
-              <ul class="space-y-1 text-sm">
-                <li class="flex items-center gap-2"><span class="inline-block w-12 shrink-0 rounded bg-cyan-50 px-1 text-center text-[10px] text-cyan-700">収集</span><span class="flex-1 truncate">買主住民票</span><select class="rounded border-0 bg-emerald-100 px-1 py-0 text-xs text-emerald-800 ring-1"><option>確定</option></select><span class="w-24 text-right text-xs text-gray-500">11/02</span></li>
-                <li class="flex items-center gap-2"><span class="inline-block w-12 shrink-0 rounded bg-cyan-50 px-1 text-center text-[10px] text-cyan-700">収集</span><span class="flex-1 truncate">買主印鑑証明書</span><select class="rounded border-0 bg-emerald-100 px-1 py-0 text-xs text-emerald-800 ring-1"><option>確定</option></select><span class="w-24 text-right text-xs text-gray-500">11/02</span></li>
-                <li class="flex items-center gap-2"><span class="inline-block w-12 shrink-0 rounded bg-violet-50 px-1 text-center text-[10px] text-violet-700">作成</span><span class="flex-1 truncate">買主用委任状</span><select class="rounded border-0 bg-gray-100 px-1 py-0 text-xs text-gray-600 ring-1"><option>未着手</option></select><span class="w-24 text-right text-xs text-amber-600">11/04 あと3日</span></li>
-              </ul>
-            </div>
-          </div>
+          <ul class="divide-y divide-gray-100">
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full bg-emerald-500"></span>
+              <span class="flex-1 truncate">買主住民票</span>
+              <span class="w-12 text-xs text-gray-400">収集</span>
+              <select class="w-20 rounded border-0 bg-transparent text-xs text-gray-500 focus:ring-0"><option>確定</option></select>
+              <span class="w-20 text-right font-mono text-xs text-gray-400">11/02</span>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full bg-emerald-500"></span>
+              <span class="flex-1 truncate">買主印鑑証明書</span>
+              <span class="w-12 text-xs text-gray-400">収集</span>
+              <select class="w-20 rounded border-0 bg-transparent text-xs text-gray-500 focus:ring-0"><option>確定</option></select>
+              <span class="w-20 text-right font-mono text-xs text-gray-400">11/02</span>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full border border-gray-300"></span>
+              <span class="flex-1 truncate text-gray-600">買主用委任状</span>
+              <span class="w-12 text-xs text-gray-400">作成</span>
+              <select class="w-20 rounded border-0 bg-transparent text-xs text-gray-500 focus:ring-0"><option>未着手</option></select>
+              <span class="w-20 text-right font-mono text-xs text-amber-600">11/04</span>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full border border-gray-300"></span>
+              <span class="flex-1 truncate text-gray-600">本人確認書類保存</span>
+              <span class="w-12 text-xs text-gray-400">タスク</span>
+              <span class="w-16 text-xs text-gray-500">鈴木</span>
+              <span class="w-20 text-right font-mono text-xs text-amber-600">11/04</span>
+            </li>
+          </ul>
         </section>
 
         <!-- 抹消金融機関 -->
-        <section class="rounded border-l-4 border-l-rose-400 bg-white shadow-sm">
-          <header class="flex items-center justify-between border-b px-3 py-2">
-            <div class="flex items-center gap-3">
-              <h3 class="text-sm font-semibold">抹消金融機関（既存銀行）</h3>
-              <span class="text-xs text-gray-500">タスク 0/1 · 書類 0/3 <span class="ml-2 text-red-600">⚠超過 1</span></span>
-            </div>
+        <section class="rounded bg-white ring-1 ring-red-100">
+          <header class="flex items-baseline gap-3 border-b px-4 py-2">
+            <span class="size-2 rounded-full bg-rose-400"></span>
+            <h3 class="text-sm font-semibold">抹消金融機関</h3>
+            <span class="text-xs text-gray-400">0/1 タスク · 0/3 書類</span>
+            <span class="ml-auto text-xs font-semibold text-red-600">⚠ 超過 1</span>
           </header>
-          <div class="grid grid-cols-2 gap-3 p-3">
-            <div>
-              <div class="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">タスク</div>
-              <ul class="space-y-1 text-sm">
-                <li class="flex items-center gap-2"><span class="inline-block size-2 rounded-full bg-red-500"></span><span class="flex-1 truncate">3回目書類受領（抹消金融機関）</span><span class="text-xs text-gray-500">伊藤</span><span class="w-24 text-right text-xs font-bold text-red-600">10/29 2日超過</span></li>
-              </ul>
-            </div>
-            <div>
-              <div class="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">書類</div>
-              <ul class="space-y-1 text-sm">
-                <li class="flex items-center gap-2"><span class="inline-block w-12 shrink-0 rounded bg-cyan-50 px-1 text-center text-[10px] text-cyan-700">収集</span><span class="flex-1 truncate">抹消書類一式（既存抵当権者）</span><select class="rounded border-0 bg-blue-100 px-1 py-0 text-xs text-blue-700 ring-1"><option>依頼済</option></select><span class="w-24 text-right text-xs font-bold text-red-600">11/02 1日超過</span></li>
-                <li class="flex items-center gap-2"><span class="inline-block w-12 shrink-0 rounded bg-cyan-50 px-1 text-center text-[10px] text-cyan-700">収集</span><span class="flex-1 truncate">抵当権抹消委任状（既存銀行）</span><select class="rounded border-0 bg-blue-100 px-1 py-0 text-xs text-blue-700 ring-1"><option>依頼済</option></select><span class="w-24 text-right text-xs text-red-600">11/02 あと1日</span></li>
-                <li class="flex items-center gap-2"><span class="inline-block w-12 shrink-0 rounded bg-cyan-50 px-1 text-center text-[10px] text-cyan-700">収集</span><span class="flex-1 truncate">登記識別情報通知（既存抵当権者）</span><select class="rounded border-0 bg-gray-100 px-1 py-0 text-xs text-gray-600 ring-1"><option>未着手</option></select><span class="w-24 text-right text-xs text-red-600">11/02 あと1日</span></li>
-              </ul>
-            </div>
-          </div>
+          <ul class="divide-y divide-gray-100">
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full bg-red-500"></span>
+              <span class="flex-1 truncate">書類受領（抹消金融機関）</span>
+              <span class="w-12 text-xs text-gray-400">タスク</span>
+              <span class="w-16 text-xs text-gray-500">伊藤</span>
+              <span class="w-20 text-right font-mono text-xs font-bold text-red-600">10/29 -2</span>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full bg-blue-500"></span>
+              <span class="flex-1 truncate">抹消書類一式</span>
+              <span class="w-12 text-xs text-gray-400">収集</span>
+              <select class="w-20 rounded border-0 bg-transparent text-xs text-gray-500 focus:ring-0"><option>依頼済</option></select>
+              <span class="w-20 text-right font-mono text-xs font-bold text-red-600">11/02 -1</span>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full bg-blue-500"></span>
+              <span class="flex-1 truncate">抹消委任状</span>
+              <span class="w-12 text-xs text-gray-400">収集</span>
+              <select class="w-20 rounded border-0 bg-transparent text-xs text-gray-500 focus:ring-0"><option>依頼済</option></select>
+              <span class="w-20 text-right font-mono text-xs text-red-600">11/02</span>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full border border-gray-300"></span>
+              <span class="flex-1 truncate text-gray-600">登記識別情報通知</span>
+              <span class="w-12 text-xs text-gray-400">収集</span>
+              <select class="w-20 rounded border-0 bg-transparent text-xs text-gray-500 focus:ring-0"><option>未着手</option></select>
+              <span class="w-20 text-right font-mono text-xs text-red-600">11/02</span>
+            </li>
+          </ul>
         </section>
 
         <!-- 設定金融機関 -->
-        <section class="rounded border-l-4 border-l-violet-400 bg-white shadow-sm">
-          <header class="flex items-center justify-between border-b px-3 py-2">
-            <div class="flex items-center gap-3">
-              <h3 class="text-sm font-semibold">設定金融機関（新規銀行）</h3>
-              <span class="text-xs text-gray-500">タスク 0/1 · 書類 0/3</span>
-            </div>
+        <section class="rounded bg-white">
+          <header class="flex items-baseline gap-3 border-b px-4 py-2">
+            <span class="size-2 rounded-full bg-violet-400"></span>
+            <h3 class="text-sm font-semibold">設定金融機関</h3>
+            <span class="text-xs text-gray-400">0/1 タスク · 0/3 書類</span>
+            <span class="ml-auto text-[10px] text-gray-400">融資ギリギリ</span>
           </header>
-          <div class="grid grid-cols-2 gap-3 p-3">
-            <div>
-              <div class="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">タスク</div>
-              <ul class="space-y-1 text-sm">
-                <li class="flex items-center gap-2"><span class="inline-block size-2 rounded-full border border-gray-300"></span><span class="flex-1 truncate">新規融資書類受領</span><span class="text-xs text-gray-500">伊藤</span><span class="w-24 text-right text-xs text-amber-600">11/03 あと2日</span></li>
-              </ul>
-            </div>
-            <div>
-              <div class="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">書類</div>
-              <ul class="space-y-1 text-sm">
-                <li class="flex items-center gap-2"><span class="inline-block w-12 shrink-0 rounded bg-cyan-50 px-1 text-center text-[10px] text-cyan-700">収集</span><span class="flex-1 truncate">設定契約書（新規銀行）</span><select class="rounded border-0 bg-gray-100 px-1 py-0 text-xs text-gray-600 ring-1"><option>未着手</option></select><span class="w-24 text-right text-xs text-amber-600">11/03 あと2日</span></li>
-                <li class="flex items-center gap-2"><span class="inline-block w-12 shrink-0 rounded bg-cyan-50 px-1 text-center text-[10px] text-cyan-700">収集</span><span class="flex-1 truncate">設定委任状（新規銀行）</span><select class="rounded border-0 bg-gray-100 px-1 py-0 text-xs text-gray-600 ring-1"><option>未着手</option></select><span class="w-24 text-right text-xs text-amber-600">11/03 あと2日</span></li>
-                <li class="flex items-center gap-2"><span class="inline-block w-12 shrink-0 rounded bg-cyan-50 px-1 text-center text-[10px] text-cyan-700">収集</span><span class="flex-1 truncate">印鑑証明書（新規銀行）</span><select class="rounded border-0 bg-gray-100 px-1 py-0 text-xs text-gray-600 ring-1"><option>未着手</option></select><span class="w-24 text-right text-xs text-amber-600">11/03 あと2日</span></li>
-              </ul>
-            </div>
-          </div>
+          <ul class="divide-y divide-gray-100">
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full border border-gray-300"></span>
+              <span class="flex-1 truncate text-gray-600">設定契約書</span>
+              <span class="w-12 text-xs text-gray-400">収集</span>
+              <select class="w-20 rounded border-0 bg-transparent text-xs text-gray-500 focus:ring-0"><option>未着手</option></select>
+              <span class="w-20 text-right font-mono text-xs text-amber-600">11/03</span>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full border border-gray-300"></span>
+              <span class="flex-1 truncate text-gray-600">設定委任状</span>
+              <span class="w-12 text-xs text-gray-400">収集</span>
+              <select class="w-20 rounded border-0 bg-transparent text-xs text-gray-500 focus:ring-0"><option>未着手</option></select>
+              <span class="w-20 text-right font-mono text-xs text-amber-600">11/03</span>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full border border-gray-300"></span>
+              <span class="flex-1 truncate text-gray-600">印鑑証明書</span>
+              <span class="w-12 text-xs text-gray-400">収集</span>
+              <select class="w-20 rounded border-0 bg-transparent text-xs text-gray-500 focus:ring-0"><option>未着手</option></select>
+              <span class="w-20 text-right font-mono text-xs text-amber-600">11/03</span>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full border border-gray-300"></span>
+              <span class="flex-1 truncate text-gray-600">融資書類受領</span>
+              <span class="w-12 text-xs text-gray-400">タスク</span>
+              <span class="w-16 text-xs text-gray-500">伊藤</span>
+              <span class="w-20 text-right font-mono text-xs text-amber-600">11/03</span>
+            </li>
+          </ul>
         </section>
 
         <!-- 仲介 -->
-        <section class="rounded border-l-4 border-l-emerald-400 bg-white shadow-sm">
-          <header class="flex items-center justify-between border-b px-3 py-2">
-            <div class="flex items-center gap-3">
-              <h3 class="text-sm font-semibold">仲介</h3>
-              <span class="text-xs text-gray-500">タスク 0/0 · 書類 1/1</span>
-            </div>
+        <section class="rounded bg-white">
+          <header class="flex items-baseline gap-3 border-b px-4 py-2">
+            <span class="size-2 rounded-full bg-emerald-400"></span>
+            <h3 class="text-sm font-semibold">仲介</h3>
+            <span class="text-xs text-gray-400">1/1 書類</span>
           </header>
-          <div class="grid grid-cols-2 gap-3 p-3">
-            <div><div class="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">タスク</div><p class="text-xs text-gray-400">—</p></div>
-            <div>
-              <div class="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">書類</div>
-              <ul class="space-y-1 text-sm">
-                <li class="flex items-center gap-2"><span class="inline-block w-12 shrink-0 rounded bg-cyan-50 px-1 text-center text-[10px] text-cyan-700">収集</span><span class="flex-1 truncate">売買契約書写し</span><select class="rounded border-0 bg-emerald-100 px-1 py-0 text-xs text-emerald-800 ring-1"><option>確定</option></select><span class="w-24 text-right text-xs text-gray-500">10/22</span></li>
-              </ul>
-            </div>
-          </div>
+          <ul class="divide-y divide-gray-100">
+            <li class="flex items-center gap-3 px-4 py-1.5 text-sm">
+              <span class="size-2 shrink-0 rounded-full bg-emerald-500"></span>
+              <span class="flex-1 truncate">売買契約書写し</span>
+              <span class="w-12 text-xs text-gray-400">収集</span>
+              <select class="w-20 rounded border-0 bg-transparent text-xs text-gray-500 focus:ring-0"><option>確定</option></select>
+              <span class="w-20 text-right font-mono text-xs text-gray-400">10/22</span>
+            </li>
+          </ul>
         </section>
-      </div>
 
-      <p class="mx-4 mb-6 mt-2 rounded border bg-white p-3 text-xs text-gray-600">
-        <span class="font-semibold text-gray-800">設計のポイント:</span>
-        書類は task の付属物ではなく独立エンティティ。<code class="rounded bg-gray-100 px-1">documents</code> テーブルが
-        kind (収集/作成)・状態機械・確定締切・配送経路・依存書類を持つ。
-        マイルストーンは 4 つ（事前郵送 / 押印返送 / 融資受領 / 全確定）に分解。
-        書類間依存（<code class="rounded bg-gray-100 px-1">confirmation_requires</code>）で売買契約書 → 売主用委任状 のような連鎖を表現。
-      </p>
+      </div>
     </main>
   </div>
 </div>

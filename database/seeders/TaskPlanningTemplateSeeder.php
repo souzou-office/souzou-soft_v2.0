@@ -21,10 +21,10 @@ class TaskPlanningTemplateSeeder extends Seeder
     private const TASKS = [
         1  => ['当事者情報',                       -30, 1, RoleCode::Common],
         2  => ['事件受任',                         -30, 1, RoleCode::Common],
-        3  => ['初回書類受領',                     -21, 2, RoleCode::Common],
+        3  => ['書類受領',                         -21, 2, RoleCode::Common],
         4  => ['必要書類一覧・見積書送付',         -14, 3, RoleCode::Common],
-        5  => ['2回目書類受領（売主）',            -7,  2, RoleCode::Seller],
-        6  => ['3回目書類受領（抹消金融機関）',    -7,  2, RoleCode::CancelBank],
+        5  => ['書類受領（売主）',                 -7,  2, RoleCode::Seller],
+        6  => ['書類受領（抹消金融機関）',         -7,  2, RoleCode::CancelBank],
         7  => ['書類作成',                         -5,  4, RoleCode::Common],
         8  => ['スケジュール入力',                 -3,  1, RoleCode::Common],
         9  => ['前日連絡',                         -1,  1, RoleCode::Common],

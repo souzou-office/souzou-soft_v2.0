@@ -2,26 +2,20 @@ import { router } from '@inertiajs/react';
 import { cn } from '@/Lib/cn';
 
 /**
- * ロール別レーンビュー。事件詳細のメインコンテンツ。
+ * ロール別レーンビュー（軽量版）。
  *
- * 縦軸 = ロール（共通 / 売主 / 買主 / 抹消銀行 / 設定銀行 / 仲介）
- * 横軸 = タスクと書類が並列に流れる
- *
- * 「売主側はOK、抹消銀行が止まってる」「設定銀行は決済直前だからまだ動かなくていい」
- * が一目で分かるよう、ロール単位で列を切ってその中に並列項目を並べる。
+ * 各ロールに 1 つの統合リスト（タスクと書類が同じ行型で並ぶ）。
+ * 余計な ring/badge を排してテーブルライクに密度を上げる。
+ *  - 状態ドット | 名前 | 種別 | (担当者|state select) | 期日
  */
 
 type Doc = {
     id: number;
     code: string;
     name: string;
-    kind: string;
-    kind_label: string;
+    kind: string;             // collection | creation
     requested_from_role: number | null;
-    delivery_method: string;
-    delivery_label: string;
-    state: string;
-    state_label: string;
+    state: string;            // not_started | requested | received | drafted | confirmed
     is_held: boolean;
     deadline: string | null;
     days_left: number | null;
@@ -32,7 +26,7 @@ type TaskLite = {
     id: number;
     role_code: number | null;
     name: string;
-    state: string;
+    state: string;            // completed | in_progress | overdue | not_started
     planned_date: string | null;
     days_left: number | null;
     assignee: { id: number; name: string } | null;
@@ -54,163 +48,141 @@ type Props = {
     tasks: TaskLite[];
 };
 
-const stateBadge: Record<string, string> = {
-    not_started: 'bg-gray-100 text-gray-600',
-    requested:   'bg-blue-100 text-blue-700',
-    received:    'bg-cyan-100 text-cyan-700',
-    drafted:     'bg-amber-100 text-amber-800',
-    confirmed:   'bg-emerald-100 text-emerald-800',
+const roleDot: Record<number, string> = {
+    0: 'bg-gray-400',
+    1: 'bg-orange-400',
+    2: 'bg-blue-400',
+    3: 'bg-rose-400',
+    4: 'bg-violet-400',
+    5: 'bg-emerald-400',
 };
 
-const roleAccent: Record<number, string> = {
-    0: 'border-l-gray-400',   // 共通
-    1: 'border-l-orange-400', // 売主
-    2: 'border-l-blue-400',   // 買主
-    3: 'border-l-rose-400',   // 抹消銀行
-    4: 'border-l-violet-400', // 設定銀行
-    5: 'border-l-emerald-400',// 仲介
-};
-
-function dueClass(d: number | null): string {
-    if (d === null) return 'text-gray-500';
+function dueClass(d: number | null | undefined): string {
+    if (d === null || d === undefined) return 'text-gray-400';
     if (d < 0) return 'font-bold text-red-600';
     if (d <= 2) return 'text-red-600';
     if (d <= 5) return 'text-amber-600';
-    return 'text-gray-500';
+    return 'text-gray-400';
 }
 
-function dueLabel(d: number | null): string {
-    if (d === null) return '';
-    if (d < 0) return ` ${Math.abs(d)}日超過`;
-    if (d === 0) return ' 本日';
-    return ` あと${d}日`;
+function dueLabel(d: number | null | undefined, deadline: string | null): string {
+    const base = deadline ?? '';
+    if (d === null || d === undefined) return base;
+    if (d < 0) return `${base} ${d}`;
+    return base;
+}
+
+function stateDot(state: string): string {
+    switch (state) {
+        case 'completed':
+        case 'confirmed':
+            return 'bg-emerald-500';
+        case 'in_progress':
+        case 'requested':
+            return 'bg-blue-500';
+        case 'received':
+            return 'bg-cyan-500';
+        case 'drafted':
+            return 'bg-amber-500';
+        case 'overdue':
+            return 'bg-red-500';
+        default:
+            return 'border border-gray-300';
+    }
 }
 
 export function RoleLanes({ lanes, documents, tasks }: Props) {
     return (
-        <div className="space-y-3 p-4">
+        <div className="mx-auto max-w-5xl space-y-2 p-4">
             {lanes.map((lane) => {
-                const laneDocs  = documents.filter((d) => d.requested_from_role === lane.role);
+                const laneDocs = documents.filter((d) => d.requested_from_role === lane.role);
                 const laneTasks = tasks.filter((t) => t.role_code === lane.role);
+                const hasOverdue = lane.doc_overdue > 0;
 
                 return (
                     <section
                         key={lane.role}
-                        className={cn(
-                            'rounded border-l-4 bg-white shadow-sm',
-                            roleAccent[lane.role] ?? 'border-l-gray-300',
-                        )}
+                        className={cn('rounded bg-white', hasOverdue && 'ring-1 ring-red-100')}
                     >
-                        <header className="flex items-center justify-between border-b px-3 py-2">
-                            <div className="flex items-center gap-3">
-                                <h3 className="text-sm font-semibold">{lane.role_label}</h3>
-                                <span className="text-xs text-gray-500">
-                                    タスク {lane.task_done}/{lane.task_count}
-                                    {' · '}
-                                    書類 {lane.doc_done}/{lane.doc_count}
-                                    {lane.doc_overdue > 0 && (
-                                        <span className="ml-2 text-red-600">⚠超過 {lane.doc_overdue}</span>
-                                    )}
+                        <header className="flex items-baseline gap-3 border-b px-4 py-2">
+                            {lane.role !== 0 && (
+                                <span className={cn('size-2 rounded-full', roleDot[lane.role])} />
+                            )}
+                            <h3 className="text-sm font-semibold">{lane.role_label}</h3>
+                            <span className="text-xs text-gray-400">
+                                {lane.task_count > 0 && `${lane.task_done}/${lane.task_count} タスク`}
+                                {lane.task_count > 0 && lane.doc_count > 0 && ' · '}
+                                {lane.doc_count > 0 && `${lane.doc_done}/${lane.doc_count} 書類`}
+                            </span>
+                            {hasOverdue && (
+                                <span className="ml-auto text-xs font-semibold text-red-600">
+                                    ⚠ 超過 {lane.doc_overdue}
                                 </span>
-                            </div>
+                            )}
                         </header>
 
-                        <div className="grid grid-cols-2 gap-3 p-3">
-                            {/* タスク列 */}
-                            <div>
-                                <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
-                                    タスク
-                                </div>
-                                {laneTasks.length === 0 ? (
-                                    <p className="text-xs text-gray-400">—</p>
-                                ) : (
-                                    <ul className="space-y-1 text-sm">
-                                        {laneTasks.map((t) => (
-                                            <li key={t.id} className="flex items-center gap-2">
-                                                <span
-                                                    className={cn(
-                                                        'inline-block size-2 shrink-0 rounded-full',
-                                                        t.state === 'completed' && 'bg-emerald-500',
-                                                        t.state === 'in_progress' && 'bg-blue-500',
-                                                        t.state === 'overdue' && 'bg-red-500',
-                                                        t.state === 'not_started' && 'border border-gray-300',
-                                                    )}
-                                                />
-                                                <span className="flex-1 truncate">{t.name}</span>
-                                                <span className="text-xs text-gray-500">{t.assignee?.name ?? '未割'}</span>
-                                                <span className={`w-24 text-right text-xs ${dueClass(t.days_left)}`}>
-                                                    {t.planned_date}
-                                                    {dueLabel(t.days_left)}
-                                                </span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </div>
+                        <ul className="divide-y divide-gray-100">
+                            {laneTasks.map((t) => (
+                                <li key={`t-${t.id}`} className="flex items-center gap-3 px-4 py-1.5 text-sm">
+                                    <span className={cn('size-2 shrink-0 rounded-full', stateDot(t.state))} />
+                                    <span className={cn('flex-1 truncate', t.state === 'not_started' && 'text-gray-600')}>
+                                        {t.name}
+                                    </span>
+                                    <span className="w-12 text-xs text-gray-400">タスク</span>
+                                    <span className="w-16 text-xs text-gray-500">
+                                        {t.assignee?.name ?? '未割'}
+                                    </span>
+                                    <span className={cn('w-24 text-right font-mono text-xs', dueClass(t.days_left))}>
+                                        {dueLabel(t.days_left, t.planned_date)}
+                                    </span>
+                                </li>
+                            ))}
 
-                            {/* 書類列 */}
-                            <div>
-                                <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
-                                    書類
-                                </div>
-                                {laneDocs.length === 0 ? (
-                                    <p className="text-xs text-gray-400">—</p>
-                                ) : (
-                                    <ul className="space-y-1 text-sm">
-                                        {laneDocs.map((d) => (
-                                            <li key={d.id} className="flex items-center gap-2">
-                                                <span className={cn(
-                                                    'inline-block w-12 shrink-0 rounded px-1 text-center text-[10px]',
-                                                    d.kind === 'collection' ? 'bg-cyan-50 text-cyan-700' : 'bg-violet-50 text-violet-700',
-                                                )}>
-                                                    {d.kind_label}
-                                                </span>
-                                                <span className="flex-1 truncate">
-                                                    {d.name}
-                                                    {d.is_held && (
-                                                        <span className="ml-1 rounded bg-emerald-100 px-1 text-[10px] text-emerald-700">預</span>
-                                                    )}
-                                                </span>
-                                                <select
-                                                    value={d.state}
-                                                    onChange={(e) => {
-                                                        router.patch(
-                                                            `/documents/${d.id}`,
-                                                            { state: e.target.value },
-                                                            { preserveScroll: true },
-                                                        );
-                                                    }}
-                                                    className={cn(
-                                                        'rounded border-0 px-1 py-0 text-xs ring-1 ring-gray-200',
-                                                        stateBadge[d.state],
-                                                    )}
-                                                >
-                                                    {d.kind === 'collection' && (
-                                                        <>
-                                                            <option value="not_started">未着手</option>
-                                                            <option value="requested">依頼済</option>
-                                                            <option value="received">受領</option>
-                                                            <option value="confirmed">確定</option>
-                                                        </>
-                                                    )}
-                                                    {d.kind === 'creation' && (
-                                                        <>
-                                                            <option value="not_started">未着手</option>
-                                                            <option value="drafted">ドラフト</option>
-                                                            <option value="confirmed">確定</option>
-                                                        </>
-                                                    )}
-                                                </select>
-                                                <span className={`w-24 text-right text-xs ${dueClass(d.days_left)}`}>
-                                                    {d.deadline}
-                                                    {dueLabel(d.days_left)}
-                                                </span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </div>
-                        </div>
+                            {laneDocs.map((d) => (
+                                <li key={`d-${d.id}`} className="flex items-center gap-3 px-4 py-1.5 text-sm">
+                                    <span className={cn('size-2 shrink-0 rounded-full', stateDot(d.state))} />
+                                    <span className={cn('flex-1 truncate', d.state === 'not_started' && 'text-gray-600')}>
+                                        {d.name}
+                                        {d.is_held && (
+                                            <span className="ml-1 text-[10px] text-emerald-600">●預</span>
+                                        )}
+                                    </span>
+                                    <span className="w-12 text-xs text-gray-400">
+                                        {d.kind === 'collection' ? '収集' : '作成'}
+                                    </span>
+                                    <select
+                                        value={d.state}
+                                        onChange={(e) =>
+                                            router.patch(
+                                                `/documents/${d.id}`,
+                                                { state: e.target.value },
+                                                { preserveScroll: true },
+                                            )
+                                        }
+                                        className="w-16 rounded border-0 bg-transparent text-xs text-gray-500 focus:ring-1 focus:ring-brand-blue"
+                                    >
+                                        {d.kind === 'collection' && (
+                                            <>
+                                                <option value="not_started">未着手</option>
+                                                <option value="requested">依頼済</option>
+                                                <option value="received">受領</option>
+                                                <option value="confirmed">確定</option>
+                                            </>
+                                        )}
+                                        {d.kind === 'creation' && (
+                                            <>
+                                                <option value="not_started">未着手</option>
+                                                <option value="drafted">ドラフト</option>
+                                                <option value="confirmed">確定</option>
+                                            </>
+                                        )}
+                                    </select>
+                                    <span className={cn('w-24 text-right font-mono text-xs', dueClass(d.days_left))}>
+                                        {dueLabel(d.days_left, d.deadline)}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
                     </section>
                 );
             })}
