@@ -9,6 +9,7 @@ use App\Enums\MilestoneKey;
 use App\Enums\RoleCode;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * 事件ごとの書類インスタンス。task の付属物ではなく独立エンティティ。
@@ -51,6 +52,11 @@ class Document extends Model
     public function definition(): BelongsTo
     {
         return $this->belongsTo(DocumentDefinition::class, 'definition_id');
+    }
+
+    public function tasks(): BelongsToMany
+    {
+        return $this->belongsToMany(Task::class, 'task_documents')->withTimestamps();
     }
 
     public function isOverdue(): bool

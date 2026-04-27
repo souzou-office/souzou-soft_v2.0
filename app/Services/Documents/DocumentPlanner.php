@@ -6,13 +6,15 @@ use App\Enums\DocumentState;
 use App\Models\Document;
 use App\Models\DocumentDefinition;
 use App\Models\Matter;
+use App\Models\Task;
 use Illuminate\Support\Facades\DB;
 
 /**
- * 事件作成時に document_definitions から書類インスタンスを生成する。
+ * 事件作成時に document_definitions から書類を生成し、
+ * linked_task_code に基づいて task_documents pivot を自動構築する。
  *
- * applies_to_job_types で対象判定し、deadline_offset_days を決済日に
- * 加算して deadline を絶対日付に確定する。
+ * これで「書類受領（売主）」1 タスク内に売主の収集系書類が束ねられ、
+ * UI ではタスクが主役・書類はその内訳として表示される。
  */
 class DocumentPlanner
 {
@@ -23,8 +25,10 @@ class DocumentPlanner
         }
 
         $definitions = DocumentDefinition::where('is_active', true)->get();
+        // task_code → Task インスタンスのマップ（pivot 紐付けで使う）
+        $tasksByCode = $matter->tasks()->get()->keyBy('task_code');
 
-        DB::transaction(function () use ($matter, $definitions) {
+        DB::transaction(function () use ($matter, $definitions, $tasksByCode) {
             foreach ($definitions as $def) {
                 if (! $def->appliesTo($matter->job_type->value)) {
                     continue;
@@ -34,7 +38,7 @@ class DocumentPlanner
                     ->startOfDay()
                     ->addDays($def->deadline_offset_days);
 
-                Document::updateOrCreate(
+                $document = Document::updateOrCreate(
                     ['matter_id' => $matter->id, 'code' => $def->code],
                     [
                         'definition_id'         => $def->id,
@@ -49,6 +53,13 @@ class DocumentPlanner
                         'confirmation_requires' => $def->confirmation_requires,
                     ]
                 );
+
+                // linked_task_code に対応する task に紐付け
+                if ($def->linked_task_code !== null && $tasksByCode->has($def->linked_task_code)) {
+                    /** @var Task $task */
+                    $task = $tasksByCode[$def->linked_task_code];
+                    $task->documents()->syncWithoutDetaching([$document->id]);
+                }
             }
         });
     }

@@ -74,16 +74,7 @@ export default function MatterShow({ matter }: Props) {
 
             <RoleLanes
                 lanes={matter.lane_summary}
-                documents={matter.documents}
-                tasks={matter.tasks.map((t: any) => ({
-                    id: t.id,
-                    role_code: t.role_code,
-                    name: t.name,
-                    state: t.state,
-                    planned_date: t.planned_date,
-                    days_left: t.days_left,
-                    assignee: t.assignee,
-                }))}
+                tasks={matter.tasks}
             />
         </AppLayout>
     );

@@ -16,6 +16,7 @@ class DocumentDefinition extends Model
     protected $fillable = [
         'code', 'name', 'kind', 'requested_from_role',
         'delivery_method', 'deadline_offset_days', 'milestone_key',
+        'linked_task_code',
         'confirmation_requires', 'applies_to_job_types',
         'needs_seal', 'is_active',
     ];

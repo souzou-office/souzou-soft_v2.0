@@ -82,6 +82,15 @@ class Task extends Model
         )->withTimestamps();
     }
 
+    /**
+     * このタスクに含まれる書類群（一括受領タスクの内訳）。
+     */
+    public function documents(): BelongsToMany
+    {
+        return $this->belongsToMany(Document::class, 'task_documents')
+            ->withTimestamps();
+    }
+
     /** 依存タスクが全て completed なら着手可能。 */
     public function isReady(\Illuminate\Support\Collection $matterTasks): bool
     {

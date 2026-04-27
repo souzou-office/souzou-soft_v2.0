@@ -29,6 +29,7 @@ class MatterController extends Controller
             'tasks.assignee',
             'tasks.assignedBy',
             'tasks.comments.user',
+            'tasks.documents',
             'documents',
             'milestones',
             'parties',
@@ -163,6 +164,21 @@ class MatterController extends Controller
                 ] : null,
                 'assigned_by'    => $t->assignedBy?->name,
                 'comments_count' => $t->comments->count(),
+                // task の中身として書類を束ねる（一括受領の表現）
+                'documents' => $t->documents->map(fn ($d) => [
+                    'id'           => $d->id,
+                    'code'         => $d->code,
+                    'name'         => $d->name,
+                    'kind'         => $d->kind?->value,
+                    'state'        => $d->state?->value,
+                    'state_label'  => $d->state?->label(),
+                    'is_held'      => $d->is_held,
+                    'deadline'     => optional($d->deadline)->format('Y-m-d'),
+                ])->values(),
+                'documents_total' => $t->documents->count(),
+                'documents_done'  => $t->documents->filter(
+                    fn ($d) => in_array($d->state?->value, ['confirmed', 'received'], true)
+                )->count(),
             ]),
             // 並列処理対応: 書類群（ロール別レーンで描画される）
             'documents' => $matter->documents->map(fn ($d) => [
@@ -200,8 +216,8 @@ class MatterController extends Controller
     }
 
     /**
-     * ロール別（売主/買主/抹消銀行/設定銀行/仲介/共通）にタスク・書類をまとめる。
-     * UI でレーンとして描画され、並列に進む様子が一目で分かる。
+     * ロール別レーン集計。タスクが主、書類はその内訳。
+     * 「書類が散発タスクに分裂」を避け、タスク数だけを主指標にする。
      */
     private function laneSummary(Matter $matter): array
     {
@@ -213,21 +229,18 @@ class MatterController extends Controller
         $lanes = [];
         foreach ($roles as $role) {
             $tasks = $matter->tasks->where('role_code', $role);
-            $docs  = $matter->documents->where('requested_from_role', $role);
 
-            // このロールに何も無いレーンは表示する必要なし（業務種別で対象外）
-            if ($tasks->isEmpty() && $docs->isEmpty()) {
+            // このロールにタスクが何もないレーンは非表示（業務種別で対象外）
+            if ($tasks->isEmpty()) {
                 continue;
             }
 
             $lanes[] = [
-                'role'        => $role->value,
-                'role_label'  => $role->label(),
-                'task_count'  => $tasks->count(),
-                'task_done'   => $tasks->whereNotNull('completed_at')->count(),
-                'doc_count'   => $docs->count(),
-                'doc_done'    => $docs->where('state', \App\Enums\DocumentState::Confirmed)->count(),
-                'doc_overdue' => $docs->filter(fn ($d) => $d->isOverdue())->count(),
+                'role'         => $role->value,
+                'role_label'   => $role->label(),
+                'task_count'   => $tasks->count(),
+                'task_done'    => $tasks->whereNotNull('completed_at')->count(),
+                'task_overdue' => $tasks->filter(fn ($t) => $t->isOverdue())->count(),
             ];
         }
         return $lanes;

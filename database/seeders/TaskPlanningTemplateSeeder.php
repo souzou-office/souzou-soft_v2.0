@@ -35,6 +35,8 @@ class TaskPlanningTemplateSeeder extends Seeder
         14 => ['送付状・受領書・宛名シール・権利証表紙出力', 3, 4, RoleCode::Common],
         15 => ['書類送付',                          5,  3, RoleCode::Common],
         16 => ['受領書保存',                       14,  2, RoleCode::Common],
+        17 => ['書類受領（設定金融機関）',         -2,  2, RoleCode::SettingBank],
+        18 => ['書類受領（買主）',                 -3,  2, RoleCode::Buyer],
     ];
 
     /**
@@ -43,16 +45,16 @@ class TaskPlanningTemplateSeeder extends Seeder
      * といった構造を表現する。
      */
     private const JOB_TYPE_TASKS = [
-        JobType::Transfer->value              => [1,2,3,4,5,7,8,9,10,11,12,14,15,16],
+        JobType::Transfer->value              => [1,2,3,4,5,7,8,9,10,11,12,14,15,16,18],
         JobType::Cancel->value                => [1,2,3,4,6,7,8,9,10,11,12,13,14,15,16],
-        JobType::CancelTransfer->value        => [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],
-        JobType::CancelTransferSetting->value => [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],
-        JobType::TransferSetting->value       => [1,2,3,4,5,7,8,9,10,11,12,14,15,16],
-        JobType::Setting->value               => [1,2,3,4,7,8,9,10,11,12,14,15,16],
-        JobType::CancelSetting->value         => [1,2,3,4,6,7,8,9,10,11,12,13,14,15,16],
-        JobType::NameChangeFull->value        => [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],
+        JobType::CancelTransfer->value        => [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18],
+        JobType::CancelTransferSetting->value => [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
+        JobType::TransferSetting->value       => [1,2,3,4,5,7,8,9,10,11,12,14,15,16,17,18],
+        JobType::Setting->value               => [1,2,3,4,7,8,9,10,11,12,14,15,16,17,18],
+        JobType::CancelSetting->value         => [1,2,3,4,6,7,8,9,10,11,12,13,14,15,16,17,18],
+        JobType::NameChangeFull->value        => [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
         JobType::NameChange->value            => [1,2,3,4,7,8,9,10,11,12,14,15,16],
-        JobType::Refinance->value             => [1,2,3,4,6,7,8,9,10,11,12,13,14,15,16],
+        JobType::Refinance->value             => [1,2,3,4,6,7,8,9,10,11,12,13,14,15,16,17,18],
         JobType::Other->value                 => [1,2,3,4,7,8,9,10,11,12,14,15,16],
     ];
 
