@@ -46,6 +46,16 @@ class Matter extends Model
         return $this->hasMany(Task::class, 'job_id')->orderBy('display_order');
     }
 
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class)->orderBy('id');
+    }
+
+    public function milestones(): HasMany
+    {
+        return $this->hasMany(Milestone::class)->orderBy('deadline_offset_days');
+    }
+
     public function parties(): HasMany
     {
         return $this->hasMany(Party::class)->orderBy('display_order');

@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\MilestoneKey;
 use App\Enums\RoleCode;
 use App\Enums\TaskStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
@@ -26,16 +28,17 @@ class Task extends Model
         'display_order', 'task_name',
         'assignee_user_id', 'assigned_by_user_id', 'assigned_at',
         'planned_date', 'status', 'reviewer_user_id',
-        'completed_at', 'payload',
+        'milestone_key', 'completed_at', 'payload',
     ];
 
     protected $casts = [
-        'role_code'    => RoleCode::class,
-        'status'       => TaskStatus::class,
-        'assigned_at'  => 'datetime',
-        'planned_date' => 'date',
-        'completed_at' => 'datetime',
-        'payload'      => 'array',
+        'role_code'     => RoleCode::class,
+        'status'        => TaskStatus::class,
+        'milestone_key' => MilestoneKey::class,
+        'assigned_at'   => 'datetime',
+        'planned_date'  => 'date',
+        'completed_at'  => 'datetime',
+        'payload'       => 'array',
     ];
 
     public function matter(): BelongsTo
@@ -61,6 +64,37 @@ class Task extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(TaskComment::class)->orderBy('created_at');
+    }
+
+    public function dependencies(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Task::class, 'task_dependencies',
+            'task_id', 'depends_on_task_id'
+        )->withTimestamps();
+    }
+
+    public function dependents(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Task::class, 'task_dependencies',
+            'depends_on_task_id', 'task_id'
+        )->withTimestamps();
+    }
+
+    /** 依存タスクが全て completed なら着手可能。 */
+    public function isReady(\Illuminate\Support\Collection $matterTasks): bool
+    {
+        $deps = $this->dependencies;
+        if ($deps->isEmpty()) return true;
+
+        foreach ($deps as $dep) {
+            $task = $matterTasks->firstWhere('id', $dep->id);
+            if (! $task || ! $task->isCompleted()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public function formInputs(): HasMany

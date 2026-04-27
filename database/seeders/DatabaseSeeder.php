@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             TaskPlanningTemplateSeeder::class,
             DocumentTemplateSeeder::class,
+            DocumentDefinitionSeeder::class,
         ]);
     }
 }

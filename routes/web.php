@@ -35,6 +35,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tasks/{task}/return', [TaskController::class, 'returnTask'])->name('tasks.return');
     Route::post('/tasks/{task}/comments', [TaskController::class, 'addComment'])->name('tasks.comments.store');
 
+    // 書類状態遷移（並列処理対応）
+    Route::patch('/documents/{document}', [\App\Http\Controllers\DocumentStateController::class, 'update'])
+        ->name('documents.update');
+
     // 6章 書類生成
     Route::get('/matters/{matter}/documents/{template}/form', [DocumentController::class, 'form'])->name('documents.form');
     Route::post('/matters/{matter}/documents/{template}/generate', [DocumentController::class, 'generate'])->name('documents.generate');
