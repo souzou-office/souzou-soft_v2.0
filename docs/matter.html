@@ -150,13 +150,16 @@ const TASKS = [
     { name:'必要書類一覧（売主用）', kind:'creation', state:'confirmed', deadline:'10/22' },
     { name:'必要書類一覧（買主用）', kind:'creation', state:'confirmed', deadline:'10/22' },
   ]},
+  // 書類作成は収集と並走可能（ドラフトは先に作れる）
   { id:5, role:'common', name:'書類作成', state:'in_progress', assignee:'田中', deadline:'10/26', docs:[
     { name:'売主用委任状（押印往復）',     kind:'creation', state:'confirmed', deadline:'10/26' },
     { name:'登記原因証明情報（売主押印分）', kind:'creation', state:'drafted',   deadline:'10/26' },
     { name:'買主用委任状',                 kind:'creation', state:'not_started', deadline:'11/04' },
   ]},
-  { id:6, role:'common', name:'前日連絡', state:'not_started', assignee:'田中', deadline:'11/04', docs:[] },
-  { id:7, role:'common', name:'決済・登記申請', state:'not_started', assignee:'田中', deadline:'11/05', docs:[] },
+  // 前日連絡は書類作成完了が必要（hard sequential）
+  { id:6, role:'common', name:'前日連絡', state:'not_started', assignee:'田中', deadline:'11/04', blocked_by:['書類作成'], docs:[] },
+  // 決済は前日連絡 + 受付カード + 本人確認が完了してから
+  { id:7, role:'common', name:'決済・登記申請', state:'not_started', assignee:'田中', deadline:'11/05', blocked_by:['前日連絡','本人確認書類保存'], docs:[] },
 
   // 売主
   { id:10, role:'seller', name:'書類受領（売主）', state:'in_progress', assignee:'佐藤', deadline:'10/29', docs:[
@@ -196,10 +199,10 @@ const ROLES = [
   { key:'setting', label:'設定金融機関' },
 ];
 
-// ====== 並走バナー ======
+// ====== 並走バナー（依存待ちは除外） ======
 function renderParallelBanner() {
-  const inProgress = TASKS.filter((t) => t.state === 'in_progress');
-  const overdue    = TASKS.filter((t) => t.state === 'overdue');
+  const inProgress = TASKS.filter((t) => t.state === 'in_progress' && !t.blocked_by);
+  const overdue    = TASKS.filter((t) => t.state === 'overdue' && !t.blocked_by);
   const banner = document.getElementById('parallel-banner');
 
   let html = `<div class="flex items-center gap-2 flex-wrap">
@@ -253,13 +256,18 @@ function renderNav() {
       <ul>`;
     tasks.forEach((t) => {
       const active = t.id === selectedId;
+      const blocked = !!t.blocked_by;
       const docBadge = t.docs.length > 0
         ? `<span class="text-[10px] text-gray-400">📎${t.docs.filter((d)=>d.state==='confirmed'||d.state==='received').length}/${t.docs.length}</span>`
         : '';
+      const indicator = blocked
+        ? `<span class="text-[10px] text-gray-400">⏸</span>`
+        : `<span class="size-2 shrink-0 rounded-full ${STATE_DOT[t.state]}"></span>`;
+      const title = blocked ? `title="待ち: ${t.blocked_by.join('・')}"` : '';
       html += `<li>
-        <button onclick="select(${t.id})" class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-blue-50 ${active ? 'bg-blue-50 font-medium' : ''}">
-          <span class="size-2 shrink-0 rounded-full ${STATE_DOT[t.state]}"></span>
-          <span class="flex-1 truncate ${t.state==='not_started' ? 'text-gray-600' : ''}">${t.name}</span>
+        <button onclick="select(${t.id})" ${title} class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-blue-50 ${active ? 'bg-blue-50 font-medium' : ''} ${blocked ? 'opacity-50' : ''}">
+          ${indicator}
+          <span class="flex-1 truncate ${(t.state==='not_started'||blocked) ? 'text-gray-500' : ''}">${t.name}</span>
           ${docBadge}
         </button>
       </li>`;
@@ -290,11 +298,17 @@ function renderDetail() {
         <h2 class="text-xl font-semibold">${t.name}</h2>
       </div>
       <div class="flex gap-2">
-        <button class="rounded border bg-white px-3 py-1 text-xs hover:bg-gray-50">完了にする</button>
+        <button class="rounded border bg-white px-3 py-1 text-xs hover:bg-gray-50 ${t.blocked_by ? 'opacity-40' : ''}" ${t.blocked_by ? 'disabled' : ''}>完了にする</button>
       </div>
-    </header>
+    </header>`;
 
-    <div class="mb-4 grid grid-cols-2 gap-4 rounded border bg-white p-4 text-sm">
+  if (t.blocked_by) {
+    html += `<div class="mb-4 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+      ⏸ 待ち: <strong>${t.blocked_by.join('・')}</strong> の完了が必要
+    </div>`;
+  }
+
+  html += `<div class="mb-4 grid grid-cols-2 gap-4 rounded border bg-white p-4 text-sm">
       <div>
         <div class="text-xs text-gray-500">担当者</div>
         <select class="mt-0.5 rounded border-gray-200 bg-transparent text-sm">

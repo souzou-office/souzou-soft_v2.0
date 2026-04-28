@@ -30,6 +30,7 @@ class MatterController extends Controller
             'tasks.assignedBy',
             'tasks.comments.user',
             'tasks.documents',
+            'tasks.dependencies',
             'documents',
             'milestones',
             'parties',
@@ -164,6 +165,9 @@ class MatterController extends Controller
                 ] : null,
                 'assigned_by'    => $t->assignedBy?->name,
                 'comments_count' => $t->comments->count(),
+                // DAG 依存: 並列処理モデル
+                'is_blocked'     => $t->isBlocked(),
+                'blocked_by'     => $t->blockingTaskNames(),
                 // task の中身として書類を束ねる（一括受領の表現）
                 'documents' => $t->documents->map(fn ($d) => [
                     'id'           => $d->id,

@@ -106,6 +106,25 @@ class Task extends Model
         return true;
     }
 
+    /**
+     * 依存タスクが未完了の場合は blocked。並走バナーから除外し、
+     * 左ナビでは「⏸ 待ち」表示にする判定に使う。
+     */
+    public function isBlocked(): bool
+    {
+        return $this->dependencies
+            ->contains(fn (Task $dep) => ! $dep->isCompleted());
+    }
+
+    /** Blocked の場合、待っている前提タスク名のリスト。UI ツールチップ用。 */
+    public function blockingTaskNames(): array
+    {
+        return $this->dependencies
+            ->filter(fn (Task $dep) => ! $dep->isCompleted())
+            ->pluck('task_name')
+            ->all();
+    }
+
     public function formInputs(): HasMany
     {
         return $this->hasMany(TaskFormInput::class);

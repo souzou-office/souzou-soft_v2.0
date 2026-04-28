@@ -39,6 +39,8 @@ type TaskItem = {
     assignee: { id: number; name: string } | null;
     assigned_by: string | null;
     comments_count: number;
+    is_blocked: boolean;
+    blocked_by: string[];
     documents: DocItem[];
     documents_total: number;
     documents_done: number;
@@ -98,8 +100,13 @@ export default function MatterShow({ matter, staff }: Props) {
         [matter.tasks, selectedId],
     );
 
-    const inProgressTasks = matter.tasks.filter((t) => t.state === 'in_progress');
-    const overdueTasks = matter.tasks.filter((t) => t.state === 'overdue');
+    // 並走バナーには「実際に並走できる」タスクのみ。依存待ちは除外。
+    const inProgressTasks = matter.tasks.filter(
+        (t) => t.state === 'in_progress' && !t.is_blocked,
+    );
+    const overdueTasks = matter.tasks.filter(
+        (t) => t.state === 'overdue' && !t.is_blocked,
+    );
 
     const partiesSummary = useMemo(() => {
         const sellers = matter.parties.filter((p) => p.role_code === 1).map((p) => p.name);
@@ -202,13 +209,19 @@ export default function MatterShow({ matter, staff }: Props) {
                                         <li key={t.id}>
                                             <button
                                                 onClick={() => setSelectedId(t.id)}
+                                                title={t.is_blocked ? `待ち: ${t.blocked_by.join('・')}` : undefined}
                                                 className={cn(
                                                     'flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-blue-50',
                                                     t.id === selectedId && 'bg-blue-50 font-medium',
+                                                    t.is_blocked && 'opacity-50',
                                                 )}
                                             >
-                                                <span className={cn('size-2 shrink-0 rounded-full', stateDot(t.state))} />
-                                                <span className={cn('flex-1 truncate', t.state === 'not_started' && 'text-gray-600')}>
+                                                {t.is_blocked ? (
+                                                    <span className="text-[10px] text-gray-400">⏸</span>
+                                                ) : (
+                                                    <span className={cn('size-2 shrink-0 rounded-full', stateDot(t.state))} />
+                                                )}
+                                                <span className={cn('flex-1 truncate', (t.state === 'not_started' || t.is_blocked) && 'text-gray-500')}>
                                                     {t.name}
                                                 </span>
                                                 {t.documents_total > 0 && (
@@ -280,11 +293,18 @@ function TaskDetail({ task, staff }: { task: TaskItem; staff: { id: number; name
                 </div>
                 <button
                     onClick={() => router.post(`/tasks/${task.id}/complete`, {}, { preserveScroll: true })}
-                    className="rounded border bg-white px-3 py-1 text-xs hover:bg-gray-50"
+                    disabled={task.is_blocked}
+                    className="rounded border bg-white px-3 py-1 text-xs hover:bg-gray-50 disabled:opacity-40"
                 >
                     完了にする
                 </button>
             </header>
+
+            {task.is_blocked && (
+                <div className="mb-4 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                    ⏸ 待ち: <strong>{task.blocked_by.join('・')}</strong> の完了が必要
+                </div>
+            )}
 
             <div className="mb-4 grid grid-cols-2 gap-4 rounded border bg-white p-4 text-sm">
                 <div>
