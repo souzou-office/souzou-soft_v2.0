@@ -1,44 +1,38 @@
 import { router } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import { AppLayout } from '@/Layouts/AppLayout';
-import { MilestoneBar } from '@/Components/MilestoneBar';
 import { cn } from '@/Lib/cn';
 
 /**
- * 事件詳細画面（3カラム + クリックで詳細）。
+ * 事件詳細画面（視覚優先・カード型）。
  *
- * 並列処理は次の3要素で表現:
- *  1. 上部「並走バナー」: 進行中タスクが横カードで並ぶ（クリックで該当に飛ぶ）
- *  2. 左ナビ: ロール別グルーピング、ヘッダーに「●N並走」表示
- *  3. 中央: 選択中タスクの詳細 + 含まれる書類リスト
+ * ユーザーフィードバック「文字が多い、視覚的にわかりにくい」「今日やる > 担当 >
+ * 締切 > 件数 > 全体% の優先順」を反映。
+ *
+ * 構成:
+ *  - ヘッダー (1行): 事件番号・当事者・決済日・残り日数バッジ・進捗
+ *  - 左メイン: 「超過 / 今日 / 今週 / 待ち / 完了」のセクション縦並び
+ *      各タスクはカード。担当者は色付き丸+頭文字
+ *  - 右パネル (固定): クリックしたタスクの詳細（書類リスト・操作）
  */
 
 type DocItem = {
     id: number;
-    code: string;
     name: string;
     kind: string;
     state: string;
     state_label: string;
     is_held: boolean;
-    deadline: string | null;
 };
 
 type TaskItem = {
     id: number;
-    task_code: number;
-    role_code: number | null;
     role_label: string | null;
-    milestone_key: string | null;
     name: string;
-    status: string;
     state: string;
     planned_date: string | null;
     days_left: number | null;
-    completed_at: string | null;
     assignee: { id: number; name: string } | null;
-    assigned_by: string | null;
-    comments_count: number;
     is_blocked: boolean;
     blocked_by: string[];
     documents: DocItem[];
@@ -46,67 +40,83 @@ type TaskItem = {
     documents_done: number;
 };
 
-type Lane = {
-    role: number;
-    role_label: string;
-    task_count: number;
-    task_done: number;
-    task_overdue: number;
-};
-
 type Props = {
     matter: {
         id: number;
         matter_number: string;
-        job_type_label: string | null;
         settlement_at: string | null;
         progress: { done: number; total: number; percent: number };
-        main_user: { name: string } | null;
-        parties: { id: number; role_code: number; role_label: string; name: string; address?: string }[];
-        properties: { id: number; location: string; parcel_number?: string }[];
+        parties: { id: number; role_code: number; name: string }[];
         tasks: TaskItem[];
-        milestones: any[];
-        lane_summary: Lane[];
-        drive_folder_id: string | null;
     };
     staff: { id: number; name: string }[];
 };
 
-const roleDot: Record<number, string> = {
-    0: 'bg-gray-400', 1: 'bg-orange-400', 2: 'bg-blue-400',
-    3: 'bg-rose-400', 4: 'bg-violet-400', 5: 'bg-emerald-400',
+const STAFF_TONE: Record<string, string> = {
+    '田中': 'bg-blue-500',
+    '佐藤': 'bg-emerald-500',
+    '鈴木': 'bg-violet-500',
+    '伊藤': 'bg-amber-500',
+    '高橋': 'bg-rose-500',
 };
 
-function stateDot(state: string): string {
-    switch (state) {
-        case 'completed':
-        case 'confirmed':  return 'bg-emerald-500';
-        case 'in_progress':
-        case 'requested':  return 'bg-blue-500';
-        case 'received':   return 'bg-cyan-500';
-        case 'drafted':    return 'bg-amber-500';
-        case 'overdue':    return 'bg-red-500';
-        default:           return 'border border-gray-300';
-    }
+function avatarTone(name: string): string {
+    return STAFF_TONE[name] ?? 'bg-gray-400';
 }
 
+function daysLeftFromNow(settlementAt: string | null): number | null {
+    if (!settlementAt) return null;
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const s = new Date(settlementAt);
+    s.setHours(0, 0, 0, 0);
+    return Math.round((s.getTime() - now.getTime()) / 86400000);
+}
+
+const STATE_DOT: Record<string, string> = {
+    completed: 'bg-emerald-500', confirmed: 'bg-emerald-500',
+    in_progress: 'bg-blue-500', requested: 'bg-blue-500',
+    received: 'bg-cyan-500', drafted: 'bg-amber-500',
+    overdue: 'bg-red-500', not_started: 'border border-gray-300',
+};
+const STATE_LABEL: Record<string, string> = {
+    completed: '完了', confirmed: '確定',
+    in_progress: '進行中', requested: '依頼済',
+    received: '受領', drafted: 'ドラフト',
+    overdue: '超過', not_started: '未着手',
+};
+
 export default function MatterShow({ matter, staff }: Props) {
+    // 仕分け
+    const buckets = useMemo(() => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const weekEnd = new Date(today);
+        weekEnd.setDate(today.getDate() + 7);
+
+        const overdue: TaskItem[] = [];
+        const todayList: TaskItem[] = [];
+        const week: TaskItem[] = [];
+        const blocked: TaskItem[] = [];
+        const done: TaskItem[] = [];
+
+        for (const t of matter.tasks) {
+            if (t.state === 'completed') { done.push(t); continue; }
+            if (t.is_blocked)             { blocked.push(t); continue; }
+            if (t.state === 'overdue')    { overdue.push(t); continue; }
+            if (t.days_left !== null) {
+                if (t.days_left <= 0)        todayList.push(t);
+                else if (t.days_left <= 7)   week.push(t);
+                else                         blocked.push(t); // 先のタスクは「待ち」扱い
+            }
+        }
+        return { overdue, today: todayList, week, blocked, done };
+    }, [matter.tasks]);
+
     const [selectedId, setSelectedId] = useState<number>(
-        matter.tasks.find((t) => t.state === 'in_progress')?.id ?? matter.tasks[0]?.id ?? 0,
+        buckets.today[0]?.id ?? buckets.overdue[0]?.id ?? matter.tasks[0]?.id ?? 0,
     );
-
-    const selected = useMemo(
-        () => matter.tasks.find((t) => t.id === selectedId) ?? null,
-        [matter.tasks, selectedId],
-    );
-
-    // 並走バナーには「実際に並走できる」タスクのみ。依存待ちは除外。
-    const inProgressTasks = matter.tasks.filter(
-        (t) => t.state === 'in_progress' && !t.is_blocked,
-    );
-    const overdueTasks = matter.tasks.filter(
-        (t) => t.state === 'overdue' && !t.is_blocked,
-    );
+    const selected = matter.tasks.find((t) => t.id === selectedId) ?? null;
 
     const partiesSummary = useMemo(() => {
         const sellers = matter.parties.filter((p) => p.role_code === 1).map((p) => p.name);
@@ -114,168 +124,126 @@ export default function MatterShow({ matter, staff }: Props) {
         return `${sellers.join('・') || '—'} → ${buyers.join('・') || '—'}`;
     }, [matter.parties]);
 
+    const settlementDays = daysLeftFromNow(matter.settlement_at);
+
+    // 「待ち」を blocking task でグループ化
+    const blockedGrouped = useMemo(() => {
+        const groups: Record<string, TaskItem[]> = {};
+        for (const t of buckets.blocked) {
+            const key = t.blocked_by.length > 0 ? t.blocked_by.join('・') : 'その他';
+            (groups[key] = groups[key] ?? []).push(t);
+        }
+        return groups;
+    }, [buckets.blocked]);
+
     return (
         <AppLayout title={`事件 ${matter.matter_number}`}>
-            {/* サマリー + マイルストーン */}
-            <div className="border-b bg-white">
-                <div className="flex h-10 items-center gap-4 px-4 text-sm">
-                    <span className="font-mono font-semibold text-brand-navy">{matter.matter_number}</span>
-                    <span className="text-gray-700">{partiesSummary}</span>
-                    {matter.settlement_at && (
-                        <span className="text-gray-500">
-                            {new Date(matter.settlement_at).toLocaleString('ja-JP', {
-                                month: '2-digit', day: '2-digit', weekday: 'short',
-                                hour: '2-digit', minute: '2-digit',
-                            })} 決済
-                        </span>
-                    )}
-                    <span className="text-gray-500">{matter.job_type_label}</span>
-                    {matter.main_user && (
-                        <span className="ml-auto text-gray-500">主担当: {matter.main_user.name}</span>
-                    )}
-                </div>
-                <MilestoneBar milestones={matter.milestones} />
-            </div>
+            {/* ヘッダー */}
+            <header className="flex h-14 items-center gap-4 border-b bg-white px-6">
+                <span className="font-mono text-base font-semibold text-brand-navy">
+                    {matter.matter_number}
+                </span>
+                <span className="text-gray-400">·</span>
+                <span className="text-base">{partiesSummary}</span>
+                <span className="text-gray-400">·</span>
+                {matter.settlement_at && (
+                    <span className="text-sm text-gray-600">
+                        {new Date(matter.settlement_at).toLocaleDateString('ja-JP', {
+                            month: '2-digit', day: '2-digit', weekday: 'short',
+                        })} 決済
+                    </span>
+                )}
+                {settlementDays !== null && (
+                    <span className={cn(
+                        'ml-auto inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold',
+                        settlementDays < 0 && 'bg-red-100 text-red-800',
+                        settlementDays >= 0 && settlementDays <= 3 && 'bg-red-100 text-red-700',
+                        settlementDays > 3 && settlementDays <= 7 && 'bg-amber-100 text-amber-800',
+                        settlementDays > 7 && 'bg-gray-100 text-gray-700',
+                    )}>
+                        <span className="text-lg">⏱</span>
+                        {settlementDays < 0 ? `${Math.abs(settlementDays)}日経過` : `あと ${settlementDays} 日`}
+                    </span>
+                )}
+                <span className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
+                    {matter.progress.done}/{matter.progress.total} 完了 ({matter.progress.percent}%)
+                </span>
+            </header>
 
-            {/* 並走バナー */}
-            {(inProgressTasks.length > 0 || overdueTasks.length > 0) && (
-                <div className="border-b bg-blue-50/50 px-4 py-2 text-xs">
-                    <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-semibold text-gray-700">いま並走中:</span>
-                        {inProgressTasks.map((t) => (
-                            <button
-                                key={t.id}
-                                onClick={() => setSelectedId(t.id)}
-                                className="inline-flex items-center gap-1 rounded bg-white px-2 py-1 ring-1 ring-blue-200 hover:ring-blue-400"
-                            >
-                                <span className="size-1.5 rounded-full bg-blue-500" />
-                                <span className="text-blue-700">{t.name}</span>
-                                <span className="text-gray-400">·</span>
-                                <span className="text-gray-500">{t.assignee?.name ?? '未割'}</span>
-                                <span className="text-gray-400">/{t.planned_date}</span>
-                            </button>
-                        ))}
-                        {overdueTasks.length > 0 && (
-                            <>
-                                <span className="ml-2 text-red-600">⚠ 超過:</span>
-                                {overdueTasks.map((t) => (
-                                    <button
-                                        key={t.id}
-                                        onClick={() => setSelectedId(t.id)}
-                                        className="inline-flex items-center gap-1 rounded bg-white px-2 py-1 ring-1 ring-red-200 hover:ring-red-400"
-                                    >
-                                        <span className="size-1.5 rounded-full bg-red-500" />
-                                        <span className="text-red-700">{t.name}</span>
-                                        <span className="text-gray-400">·</span>
-                                        <span className="text-gray-500">{t.assignee?.name}</span>
-                                        {t.days_left !== null && t.days_left < 0 && (
-                                            <span className="font-bold text-red-600">{t.days_left}日</span>
-                                        )}
-                                    </button>
+            {/* メイン */}
+            <div className="flex flex-1 overflow-hidden">
+
+                {/* 左: タスクセクション */}
+                <div className="flex-1 overflow-y-auto p-6">
+                    <div className="mx-auto max-w-3xl space-y-6">
+
+                        {buckets.overdue.length > 0 && (
+                            <Section title="超過" tone="red" count={buckets.overdue.length} icon="⚠">
+                                {buckets.overdue.map((t) => (
+                                    <BigCard key={t.id} task={t} accent="red" onClick={() => setSelectedId(t.id)} active={t.id === selectedId} />
                                 ))}
-                            </>
+                            </Section>
+                        )}
+
+                        {buckets.today.length > 0 && (
+                            <Section title="今日" tone="amber" count={buckets.today.length} icon="●">
+                                {buckets.today.map((t) => (
+                                    <BigCard key={t.id} task={t} accent="amber" onClick={() => setSelectedId(t.id)} active={t.id === selectedId} />
+                                ))}
+                            </Section>
+                        )}
+
+                        {buckets.week.length > 0 && (
+                            <Section title="今週" tone="gray" count={buckets.week.length} icon="○">
+                                {buckets.week.map((t) => (
+                                    <SmallCard key={t.id} task={t} onClick={() => setSelectedId(t.id)} active={t.id === selectedId} />
+                                ))}
+                            </Section>
+                        )}
+
+                        {Object.keys(blockedGrouped).length > 0 && (
+                            <section>
+                                <SectionHeader title="待ち" tone="gray" count={buckets.blocked.length} icon="⏸" />
+                                <div className="space-y-3 text-sm text-gray-500">
+                                    {Object.entries(blockedGrouped).map(([key, tasks]) => (
+                                        <div key={key}>
+                                            <div className="mb-1 text-[11px] uppercase tracking-wide text-gray-400">
+                                                ↑ {key} 完了待ち
+                                            </div>
+                                            <div className="ml-4 space-y-0.5">
+                                                {tasks.map((t) => (
+                                                    <BlockedRow key={t.id} task={t} onClick={() => setSelectedId(t.id)} active={t.id === selectedId} />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+
+                        {buckets.done.length > 0 && (
+                            <section>
+                                <details>
+                                    <summary className="flex cursor-pointer list-none items-baseline gap-2 text-sm font-bold text-emerald-700">
+                                        <span className="text-base">✓</span> 完了
+                                        <span className="text-xs font-normal text-gray-400">{buckets.done.length}件</span>
+                                        <span className="text-[10px] text-gray-400">▾</span>
+                                    </summary>
+                                    <div className="mt-2 space-y-1 opacity-60">
+                                        {buckets.done.map((t) => (
+                                            <DoneRow key={t.id} task={t} onClick={() => setSelectedId(t.id)} />
+                                        ))}
+                                    </div>
+                                </details>
+                            </section>
                         )}
                     </div>
                 </div>
-            )}
 
-            {/* 3カラム */}
-            <div className="flex h-[calc(100vh-13rem)] overflow-hidden">
-
-                {/* 左: タスクナビ */}
-                <aside className="w-72 shrink-0 overflow-y-auto border-r bg-white">
-                    {matter.lane_summary.map((lane) => {
-                        const tasks = matter.tasks.filter((t) => t.role_code === lane.role);
-                        const inProg = tasks.filter((t) => t.state === 'in_progress').length;
-                        return (
-                            <div key={lane.role} className="border-b">
-                                <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 text-xs">
-                                    {lane.role !== 0 && (
-                                        <span className={cn('size-2 rounded-full', roleDot[lane.role])} />
-                                    )}
-                                    <span className="font-semibold text-gray-700">{lane.role_label}</span>
-                                    <span className="text-gray-400">{lane.task_done}/{lane.task_count}</span>
-                                    {inProg > 0 && (
-                                        <span className="ml-auto text-[10px] text-blue-600">●{inProg}並走</span>
-                                    )}
-                                    {lane.task_overdue > 0 && (
-                                        <span className="ml-auto text-[10px] font-bold text-red-600">
-                                            ⚠{lane.task_overdue}
-                                        </span>
-                                    )}
-                                </div>
-                                <ul>
-                                    {tasks.map((t) => (
-                                        <li key={t.id}>
-                                            <button
-                                                onClick={() => setSelectedId(t.id)}
-                                                title={t.is_blocked ? `待ち: ${t.blocked_by.join('・')}` : undefined}
-                                                className={cn(
-                                                    'flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-blue-50',
-                                                    t.id === selectedId && 'bg-blue-50 font-medium',
-                                                    t.is_blocked && 'opacity-50',
-                                                )}
-                                            >
-                                                {t.is_blocked ? (
-                                                    <span className="text-[10px] text-gray-400">⏸</span>
-                                                ) : (
-                                                    <span className={cn('size-2 shrink-0 rounded-full', stateDot(t.state))} />
-                                                )}
-                                                <span className={cn('flex-1 truncate', (t.state === 'not_started' || t.is_blocked) && 'text-gray-500')}>
-                                                    {t.name}
-                                                </span>
-                                                {t.documents_total > 0 && (
-                                                    <span className="text-[10px] text-gray-400">
-                                                        📎{t.documents_done}/{t.documents_total}
-                                                    </span>
-                                                )}
-                                            </button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        );
-                    })}
-                </aside>
-
-                {/* 中央: 詳細 */}
-                <section className="flex-1 overflow-y-auto bg-gray-50 p-6">
-                    <div className="mx-auto max-w-2xl">
-                        {selected ? <TaskDetail task={selected} staff={staff} /> : (
-                            <p className="text-gray-500">タスクを選択してください</p>
-                        )}
-                    </div>
-                </section>
-
-                {/* 右: メタ */}
-                <aside className="w-64 shrink-0 overflow-y-auto border-l bg-white p-4 text-sm">
-                    <Section title="当事者">
-                        {matter.parties.map((p) => (
-                            <div key={p.id} className="mb-2 border-b pb-2">
-                                <div className="text-xs text-gray-500">{p.role_label}</div>
-                                <div className="font-medium">{p.name}</div>
-                                {p.address && <div className="text-xs text-gray-500">{p.address}</div>}
-                            </div>
-                        ))}
-                    </Section>
-                    <Section title="物件">
-                        {matter.properties.map((p) => (
-                            <div key={p.id} className="text-xs text-gray-700">
-                                {p.location} {p.parcel_number}
-                            </div>
-                        ))}
-                    </Section>
-                    {matter.drive_folder_id && (
-                        <Section title="Driveフォルダ">
-                            <a
-                                href={`https://drive.google.com/drive/folders/${matter.drive_folder_id}`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-xs text-brand-blue hover:underline"
-                            >
-                                Drive で開く ↗
-                            </a>
-                        </Section>
+                {/* 右パネル: 詳細 */}
+                <aside className="w-96 shrink-0 overflow-y-auto border-l bg-white">
+                    {selected ? <DetailPanel task={selected} /> : (
+                        <div className="p-6 text-sm text-gray-400">タスクを選択</div>
                     )}
                 </aside>
             </div>
@@ -283,161 +251,237 @@ export default function MatterShow({ matter, staff }: Props) {
     );
 }
 
-function TaskDetail({ task, staff }: { task: TaskItem; staff: { id: number; name: string }[] }) {
+// ====== コンポーネント ======
+
+function Section({ title, tone, count, icon, children }: {
+    title: string; tone: 'red' | 'amber' | 'gray';
+    count: number; icon: string; children: React.ReactNode;
+}) {
     return (
-        <article>
-            <header className="mb-4 flex items-center justify-between">
-                <div>
-                    <div className="text-xs text-gray-500">{task.role_label}</div>
-                    <h2 className="text-xl font-semibold">{task.name}</h2>
-                </div>
-                <button
-                    onClick={() => router.post(`/tasks/${task.id}/complete`, {}, { preserveScroll: true })}
-                    disabled={task.is_blocked}
-                    className="rounded border bg-white px-3 py-1 text-xs hover:bg-gray-50 disabled:opacity-40"
-                >
-                    完了にする
-                </button>
-            </header>
-
-            {task.is_blocked && (
-                <div className="mb-4 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                    ⏸ 待ち: <strong>{task.blocked_by.join('・')}</strong> の完了が必要
-                </div>
-            )}
-
-            <div className="mb-4 grid grid-cols-2 gap-4 rounded border bg-white p-4 text-sm">
-                <div>
-                    <div className="text-xs text-gray-500">担当者</div>
-                    <select
-                        value={task.assignee?.id ?? ''}
-                        onChange={(e) =>
-                            router.patch(
-                                `/tasks/${task.id}`,
-                                { assignee_user_id: e.target.value || null },
-                                { preserveScroll: true },
-                            )
-                        }
-                        className="mt-0.5 rounded border-gray-200 bg-transparent text-sm"
-                    >
-                        <option value="">未割当</option>
-                        {staff.map((s) => (
-                            <option key={s.id} value={s.id}>{s.name}</option>
-                        ))}
-                    </select>
-                </div>
-                <div>
-                    <div className="text-xs text-gray-500">進行状況</div>
-                    <select
-                        value={task.status}
-                        onChange={(e) =>
-                            router.patch(
-                                `/tasks/${task.id}`,
-                                { status: e.target.value },
-                                { preserveScroll: true },
-                            )
-                        }
-                        className="mt-0.5 rounded border-gray-200 bg-transparent text-sm"
-                    >
-                        <option value="not_started">未着手</option>
-                        <option value="in_progress">進行中</option>
-                        <option value="completed">完了</option>
-                        <option value="awaiting_review">確認待ち</option>
-                    </select>
-                </div>
-                <div>
-                    <div className="text-xs text-gray-500">期日</div>
-                    <div className={cn(
-                        'mt-0.5 font-mono',
-                        task.days_left !== null && task.days_left < 0 && 'font-bold text-red-600',
-                    )}>
-                        {task.planned_date ?? '—'}
-                        {task.days_left !== null && task.days_left < 0 && ` (${task.days_left}日超過)`}
-                    </div>
-                </div>
-                <div>
-                    <div className="text-xs text-gray-500">マイルストーン</div>
-                    <div className="mt-0.5 text-gray-700">{task.milestone_key ?? '—'}</div>
-                </div>
-            </div>
-
-            {task.documents.length > 0 ? (
-                <div className="mb-4 rounded border bg-white">
-                    <header className="flex items-center justify-between border-b px-4 py-2">
-                        <div className="text-sm font-semibold">
-                            含まれる書類 <span className="ml-1 text-xs text-gray-400">{task.documents.length}件</span>
-                        </div>
-                        <span className="text-xs text-gray-500">
-                            📎 {task.documents_done}/{task.documents_total} 完了
-                        </span>
-                    </header>
-                    <ul className="divide-y divide-gray-100 text-sm">
-                        {task.documents.map((d) => (
-                            <li key={d.id} className="flex items-center gap-3 px-4 py-1.5">
-                                <span className={cn('size-2 shrink-0 rounded-full', stateDot(d.state))} />
-                                <span className="flex-1 truncate">
-                                    {d.name}
-                                    {d.is_held && <span className="ml-1 text-xs text-emerald-600">●預</span>}
-                                </span>
-                                <span className="w-12 text-xs text-gray-400">
-                                    {d.kind === 'collection' ? '収集' : '作成'}
-                                </span>
-                                <select
-                                    value={d.state}
-                                    onChange={(e) =>
-                                        router.patch(
-                                            `/documents/${d.id}`,
-                                            { state: e.target.value },
-                                            { preserveScroll: true },
-                                        )
-                                    }
-                                    className="w-24 rounded border-0 bg-transparent text-xs text-gray-600 focus:ring-1 focus:ring-brand-blue"
-                                >
-                                    {d.kind === 'collection' && (
-                                        <>
-                                            <option value="not_started">未着手</option>
-                                            <option value="requested">依頼済</option>
-                                            <option value="received">受領</option>
-                                            <option value="confirmed">確定</option>
-                                        </>
-                                    )}
-                                    {d.kind === 'creation' && (
-                                        <>
-                                            <option value="not_started">未着手</option>
-                                            <option value="drafted">ドラフト</option>
-                                            <option value="confirmed">確定</option>
-                                        </>
-                                    )}
-                                </select>
-                                <span className="w-16 text-right font-mono text-xs text-gray-400">
-                                    {d.deadline ?? ''}
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            ) : (
-                <div className="rounded border bg-white p-4 text-xs text-gray-400">
-                    紐付く書類はありません（独立タスク）
-                </div>
-            )}
-
-            <div className="mt-4 rounded border bg-white">
-                <header className="border-b px-4 py-2 text-sm font-semibold">
-                    コメント
-                    {task.comments_count > 0 && <span className="ml-1 text-xs text-gray-400">{task.comments_count}件</span>}
-                </header>
-                <div className="p-4 text-xs text-gray-400">コメントなし</div>
-            </div>
-        </article>
+        <section>
+            <SectionHeader title={title} tone={tone} count={count} icon={icon} />
+            <div className="space-y-2">{children}</div>
+        </section>
     );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function SectionHeader({ title, tone, count, icon }: {
+    title: string; tone: 'red' | 'amber' | 'gray'; count: number; icon: string;
+}) {
+    const toneCls = tone === 'red' ? 'text-red-700' : tone === 'amber' ? 'text-amber-700' : 'text-gray-600';
     return (
-        <div className="mb-4">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{title}</div>
-            {children}
+        <h2 className={cn('mb-2 flex items-baseline gap-2 text-sm font-bold', toneCls)}>
+            <span className="text-base">{icon}</span> {title}
+            <span className="text-xs font-normal text-gray-500">{count}件</span>
+        </h2>
+    );
+}
+
+function Avatar({ name, size = 'md' }: { name: string | null; size?: 'sm' | 'md' | 'lg' }) {
+    const sz = size === 'lg' ? 'size-10 text-sm' : size === 'sm' ? 'size-5 text-[10px]' : 'size-9 text-sm';
+    return (
+        <div className={cn('flex shrink-0 items-center justify-center rounded-full font-bold text-white', sz, avatarTone(name ?? ''))}>
+            {(name ?? '?').slice(0, 1)}
+        </div>
+    );
+}
+
+function BigCard({ task, accent, onClick, active }: {
+    task: TaskItem; accent: 'red' | 'amber'; onClick: () => void; active: boolean;
+}) {
+    const border = accent === 'red' ? 'border-l-red-500' : 'border-l-amber-400';
+    const ring = accent === 'red' ? 'ring-1 ring-red-100' : '';
+    const docPercent = task.documents_total > 0
+        ? Math.round((task.documents_done / task.documents_total) * 100) : 0;
+
+    return (
+        <button
+            onClick={onClick}
+            className={cn(
+                'block w-full rounded-lg border-l-4 bg-white p-4 text-left shadow-sm hover:shadow',
+                border, ring, active && 'ring-2 ring-blue-300',
+            )}
+        >
+            <div className="flex items-center gap-3">
+                <Avatar name={task.assignee?.name ?? null} />
+                <div className="flex-1 min-w-0">
+                    <div className="font-semibold truncate">{task.name}</div>
+                    {task.documents_total > 0 && (
+                        <div className="mt-0.5 flex items-center gap-1.5">
+                            <div className="h-1.5 w-32 overflow-hidden rounded-full bg-gray-200">
+                                <div className="h-full bg-emerald-500" style={{ width: `${docPercent}%` }} />
+                            </div>
+                            <span className="text-[11px] text-gray-500">
+                                {task.documents_done}/{task.documents_total}
+                            </span>
+                        </div>
+                    )}
+                </div>
+                <div className="text-right">
+                    {accent === 'red' && task.days_left !== null && (
+                        <div className="text-lg font-bold text-red-600">{task.days_left}日</div>
+                    )}
+                    <div className="text-[10px] text-gray-400">{task.planned_date}</div>
+                </div>
+            </div>
+        </button>
+    );
+}
+
+function SmallCard({ task, onClick, active }: { task: TaskItem; onClick: () => void; active: boolean }) {
+    return (
+        <button
+            onClick={onClick}
+            className={cn(
+                'block w-full rounded border-l-2 border-l-gray-300 bg-white p-3 text-left hover:bg-gray-50',
+                active && 'ring-2 ring-blue-300',
+            )}
+        >
+            <div className="flex items-center gap-3 text-sm">
+                <Avatar name={task.assignee?.name ?? null} size="sm" />
+                <span className="flex-1 truncate">{task.name}</span>
+                {task.documents_total > 0 && (
+                    <span className="text-xs text-gray-500">{task.documents_total}書類</span>
+                )}
+                <span className="w-12 text-right text-xs text-amber-600">{task.planned_date}</span>
+            </div>
+        </button>
+    );
+}
+
+function BlockedRow({ task, onClick, active }: { task: TaskItem; onClick: () => void; active: boolean }) {
+    return (
+        <button
+            onClick={onClick}
+            className={cn(
+                'flex w-full items-center gap-2 rounded px-2 py-1 text-left hover:bg-white',
+                active && 'bg-white ring-1 ring-blue-200',
+            )}
+        >
+            <Avatar name={task.assignee?.name ?? null} size="sm" />
+            <span className="flex-1 truncate">{task.name}</span>
+            <span className="text-xs">{task.planned_date}</span>
+        </button>
+    );
+}
+
+function DoneRow({ task, onClick }: { task: TaskItem; onClick: () => void }) {
+    return (
+        <button
+            onClick={onClick}
+            className="flex w-full items-center gap-3 rounded bg-emerald-50/50 p-2 text-left text-sm hover:bg-emerald-50"
+        >
+            <Avatar name={task.assignee?.name ?? null} size="sm" />
+            <span className="flex-1 truncate line-through">{task.name}</span>
+            <span className="text-xs text-gray-500">{task.planned_date}</span>
+        </button>
+    );
+}
+
+function DetailPanel({ task }: { task: TaskItem }) {
+    return (
+        <div>
+            <div className="border-b bg-gray-50 px-6 py-4">
+                <div className="text-xs text-gray-500">{task.role_label ?? '—'}</div>
+                <h3 className="mt-1 text-lg font-bold">{task.name}</h3>
+                {task.is_blocked && (
+                    <div className="mt-2 inline-flex items-center gap-1 rounded bg-amber-100 px-2 py-0.5 text-xs text-amber-800">
+                        ⏸ {task.blocked_by.join('・')} 完了待ち
+                    </div>
+                )}
+            </div>
+
+            <div className="space-y-4 p-6">
+                <div className="flex items-center gap-3">
+                    <Avatar name={task.assignee?.name ?? null} size="lg" />
+                    <div>
+                        <div className="text-xs text-gray-500">担当</div>
+                        <div className="font-medium">{task.assignee?.name ?? '未割当'}</div>
+                    </div>
+                    <div className="ml-auto text-right">
+                        <div className="text-xs text-gray-500">期日</div>
+                        <div className={cn('font-mono', task.state === 'overdue' && 'font-bold text-red-600')}>
+                            {task.planned_date ?? '—'}
+                        </div>
+                    </div>
+                </div>
+
+                {task.documents.length > 0 ? (
+                    <div>
+                        <div className="mb-2 flex items-center justify-between">
+                            <div className="text-xs font-semibold text-gray-600">
+                                書類 ({task.documents_done}/{task.documents_total})
+                            </div>
+                            <div className="h-1.5 w-20 overflow-hidden rounded-full bg-gray-200">
+                                <div
+                                    className="h-full bg-emerald-500"
+                                    style={{ width: `${(task.documents_done / task.documents_total) * 100}%` }}
+                                />
+                            </div>
+                        </div>
+                        <ul className="divide-y divide-gray-100 rounded border bg-white text-sm">
+                            {task.documents.map((d) => (
+                                <li key={d.id} className="flex items-center gap-3 px-3 py-2">
+                                    <span className={cn('size-2 shrink-0 rounded-full', STATE_DOT[d.state])} />
+                                    <span className="flex-1 truncate">
+                                        {d.name}
+                                        {d.is_held && <span className="ml-1 text-xs text-emerald-600">●預</span>}
+                                    </span>
+                                    <select
+                                        value={d.state}
+                                        onChange={(e) =>
+                                            router.patch(
+                                                `/documents/${d.id}`,
+                                                { state: e.target.value },
+                                                { preserveScroll: true },
+                                            )
+                                        }
+                                        className="rounded border-0 bg-transparent text-xs text-gray-600 focus:ring-1 focus:ring-brand-blue"
+                                    >
+                                        {d.kind === 'collection' && (
+                                            <>
+                                                <option value="not_started">未着手</option>
+                                                <option value="requested">依頼済</option>
+                                                <option value="received">受領</option>
+                                                <option value="confirmed">確定</option>
+                                            </>
+                                        )}
+                                        {d.kind === 'creation' && (
+                                            <>
+                                                <option value="not_started">未着手</option>
+                                                <option value="drafted">ドラフト</option>
+                                                <option value="confirmed">確定</option>
+                                            </>
+                                        )}
+                                    </select>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ) : (
+                    <div className="rounded border bg-gray-50 p-3 text-xs text-gray-400">
+                        紐付く書類はありません
+                    </div>
+                )}
+
+                <div className="flex gap-2">
+                    <button
+                        onClick={() =>
+                            router.post(`/tasks/${task.id}/complete`, {}, { preserveScroll: true })
+                        }
+                        disabled={task.is_blocked}
+                        className={cn(
+                            'flex-1 rounded bg-emerald-500 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-600',
+                            task.is_blocked && 'cursor-not-allowed opacity-40',
+                        )}
+                    >
+                        ✓ 完了にする
+                    </button>
+                    <button className="rounded border bg-white px-3 py-2 text-sm hover:bg-gray-50">
+                        ⋯
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }

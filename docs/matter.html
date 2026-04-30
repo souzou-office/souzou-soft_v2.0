@@ -14,8 +14,8 @@ tailwind.config = {
 <style>body{font-family:Inter,'Yu Gothic','Noto Sans JP',sans-serif;}</style>
 </head>
 <body class="bg-gray-50 text-gray-900">
-<div class="flex min-h-screen">
 
+<div class="flex min-h-screen">
   <aside class="flex w-52 flex-col border-r bg-white">
     <div class="flex h-12 items-center px-4 text-base font-bold text-brand-navy">
       souzou-soft <span class="ml-1 text-xs font-normal text-gray-500">v2.0</span>
@@ -29,362 +29,324 @@ tailwind.config = {
   </aside>
 
   <div class="flex flex-1 flex-col">
-    <header class="flex h-12 items-center justify-between border-b bg-white px-4">
-      <h1 class="text-base font-semibold">事件 2026010101</h1>
+    <!-- ===== ヘッダー: 1行で完結 ===== -->
+    <header class="flex h-14 items-center gap-4 border-b bg-white px-6">
+      <span class="font-mono text-base font-semibold text-brand-navy">2026010101</span>
+      <span class="text-gray-400">·</span>
+      <span class="text-base">山田太郎・山田花子 → 佐藤次郎</span>
+      <span class="text-gray-400">·</span>
+      <span class="text-sm text-gray-600">11/05(水) 決済</span>
+
+      <!-- 決済まで N 日 -->
+      <span class="ml-auto inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800">
+        <span class="text-lg">⏱</span>
+        あと 4 日
+      </span>
+
+      <!-- 進捗 -->
+      <span class="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
+        12/20 完了 (60%)
+      </span>
     </header>
 
-    <!-- サマリー + マイルストーン -->
-    <div class="border-b bg-white">
-      <div class="flex h-10 items-center gap-4 px-4 text-sm">
-        <span class="font-mono font-semibold text-brand-navy">2026010101</span>
-        <span class="text-gray-700">山田太郎・山田花子 → 佐藤次郎</span>
-        <span class="text-gray-500">11/05(水) 09:30 決済</span>
-        <span class="text-gray-500">抹消・移転・設定</span>
-        <span class="ml-auto text-gray-500">主担当: 田中</span>
+    <!-- ===== メイン: セクション縦並び ===== -->
+    <main class="flex flex-1 overflow-hidden">
+
+      <div class="flex-1 overflow-y-auto p-6">
+        <div class="mx-auto max-w-3xl space-y-6">
+
+          <!-- 超過 -->
+          <section>
+            <h2 class="mb-2 flex items-baseline gap-2 text-sm font-bold text-red-700">
+              <span class="text-base">⚠</span> 超過 <span class="text-xs font-normal text-gray-500">1件</span>
+            </h2>
+            <div class="space-y-2">
+              <div onclick="select(30)" class="cursor-pointer rounded-lg border-l-4 border-l-red-500 bg-white p-4 shadow-sm hover:shadow ring-1 ring-red-100">
+                <div class="flex items-center gap-3">
+                  <div class="flex size-9 shrink-0 items-center justify-center rounded-full bg-amber-500 text-sm font-bold text-white">伊</div>
+                  <div class="flex-1">
+                    <div class="font-semibold">書類受領（抹消金融機関）</div>
+                    <div class="text-xs text-gray-500">3書類 0/3 受領</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-lg font-bold text-red-600">−2日</div>
+                    <div class="text-[10px] text-gray-400">10/29 期日</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 今日 -->
+          <section>
+            <h2 class="mb-2 flex items-baseline gap-2 text-sm font-bold text-amber-700">
+              <span class="text-base">●</span> 今日 <span class="text-xs font-normal text-gray-500">3件</span>
+            </h2>
+            <div class="space-y-2">
+              <div onclick="select(10)" class="cursor-pointer rounded-lg border-l-4 border-l-amber-400 bg-white p-4 shadow-sm hover:shadow">
+                <div class="flex items-center gap-3">
+                  <div class="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-sm font-bold text-white">佐</div>
+                  <div class="flex-1">
+                    <div class="font-semibold">書類受領（売主）</div>
+                    <div class="mt-0.5 flex items-center gap-1.5">
+                      <div class="h-1.5 w-32 overflow-hidden rounded-full bg-gray-200">
+                        <div class="h-full bg-emerald-500" style="width:75%"></div>
+                      </div>
+                      <span class="text-[11px] text-gray-500">3/4</span>
+                    </div>
+                  </div>
+                  <div class="text-right text-xs text-gray-500">10/29</div>
+                </div>
+              </div>
+
+              <div onclick="select(20)" class="cursor-pointer rounded-lg border-l-4 border-l-amber-400 bg-white p-4 shadow-sm hover:shadow">
+                <div class="flex items-center gap-3">
+                  <div class="flex size-9 shrink-0 items-center justify-center rounded-full bg-violet-500 text-sm font-bold text-white">鈴</div>
+                  <div class="flex-1">
+                    <div class="font-semibold">書類受領（買主）</div>
+                    <div class="mt-0.5 flex items-center gap-1.5">
+                      <div class="h-1.5 w-32 overflow-hidden rounded-full bg-gray-200">
+                        <div class="h-full bg-emerald-500" style="width:50%"></div>
+                      </div>
+                      <span class="text-[11px] text-gray-500">1/2</span>
+                    </div>
+                  </div>
+                  <div class="text-right text-xs text-gray-500">11/02</div>
+                </div>
+              </div>
+
+              <div onclick="select(5)" class="cursor-pointer rounded-lg border-l-4 border-l-amber-400 bg-white p-4 shadow-sm hover:shadow">
+                <div class="flex items-center gap-3">
+                  <div class="flex size-9 shrink-0 items-center justify-center rounded-full bg-blue-500 text-sm font-bold text-white">田</div>
+                  <div class="flex-1">
+                    <div class="font-semibold">書類作成</div>
+                    <div class="mt-0.5 flex items-center gap-1.5">
+                      <div class="h-1.5 w-32 overflow-hidden rounded-full bg-gray-200">
+                        <div class="h-full bg-amber-500" style="width:40%"></div>
+                      </div>
+                      <span class="text-[11px] text-gray-500">1/3 確定</span>
+                    </div>
+                  </div>
+                  <div class="text-right text-xs text-gray-500">10/26</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 今週 -->
+          <section>
+            <h2 class="mb-2 flex items-baseline gap-2 text-sm font-bold text-gray-600">
+              <span class="text-base">○</span> 今週 <span class="text-xs font-normal text-gray-400">2件</span>
+            </h2>
+            <div class="space-y-1">
+              <div onclick="select(40)" class="cursor-pointer rounded border-l-2 border-l-gray-300 bg-white p-3 hover:bg-gray-50">
+                <div class="flex items-center gap-3 text-sm">
+                  <div class="flex size-7 shrink-0 items-center justify-center rounded-full bg-amber-500 text-xs font-bold text-white">伊</div>
+                  <span class="flex-1">書類受領（設定金融機関）</span>
+                  <span class="text-xs text-gray-500">3書類</span>
+                  <span class="w-12 text-right text-xs text-amber-600">11/03</span>
+                </div>
+              </div>
+              <div onclick="select(11)" class="cursor-pointer rounded border-l-2 border-l-gray-300 bg-white p-3 hover:bg-gray-50">
+                <div class="flex items-center gap-3 text-sm">
+                  <div class="flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-white">佐</div>
+                  <span class="flex-1">本人確認書類保存（売主）</span>
+                  <span class="w-12 text-right text-xs text-amber-600">11/04</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 待ち（依存待ち） -->
+          <section>
+            <h2 class="mb-2 flex items-baseline gap-2 text-sm font-bold text-gray-500">
+              <span class="text-base">⏸</span> 待ち <span class="text-xs font-normal text-gray-400">3件</span>
+            </h2>
+            <div class="space-y-3 text-sm text-gray-500">
+              <div>
+                <div class="text-[11px] uppercase tracking-wide text-gray-400 mb-1">↑ 書類作成 完了待ち</div>
+                <div class="ml-4 space-y-0.5">
+                  <div onclick="select(6)" class="flex cursor-pointer items-center gap-2 rounded px-2 py-1 hover:bg-white">
+                    <div class="flex size-5 shrink-0 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white">田</div>
+                    <span class="flex-1">前日連絡</span>
+                    <span class="text-xs">11/04</span>
+                  </div>
+                  <div class="flex items-center gap-2 px-2 py-1">
+                    <div class="flex size-5 shrink-0 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white">田</div>
+                    <span class="flex-1">受付カード出力</span>
+                    <span class="text-xs">11/04</span>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="text-[11px] uppercase tracking-wide text-gray-400 mb-1">↑ 前日連絡 完了待ち</div>
+                <div class="ml-4 space-y-0.5">
+                  <div onclick="select(7)" class="flex cursor-pointer items-center gap-2 rounded px-2 py-1 hover:bg-white">
+                    <div class="flex size-5 shrink-0 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white">田</div>
+                    <span class="flex-1">決済・登記申請</span>
+                    <span class="text-xs">11/05</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 完了（折りたたみ） -->
+          <section>
+            <details>
+              <summary class="cursor-pointer text-sm font-bold text-emerald-700 list-none flex items-baseline gap-2">
+                <span class="text-base">✓</span> 完了 <span class="text-xs font-normal text-gray-400">4件</span> <span class="text-[10px] text-gray-400">▾</span>
+              </summary>
+              <div class="mt-2 space-y-1 opacity-60">
+                <div class="flex items-center gap-3 rounded bg-emerald-50/50 p-2 text-sm">
+                  <div class="flex size-6 shrink-0 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white">田</div>
+                  <span class="flex-1 line-through">事件受任</span>
+                  <span class="text-xs text-gray-500">10/05</span>
+                </div>
+                <div class="flex items-center gap-3 rounded bg-emerald-50/50 p-2 text-sm">
+                  <div class="flex size-6 shrink-0 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white">田</div>
+                  <span class="flex-1 line-through">当事者情報</span>
+                  <span class="text-xs text-gray-500">10/05</span>
+                </div>
+                <div class="flex items-center gap-3 rounded bg-emerald-50/50 p-2 text-sm">
+                  <div class="flex size-6 shrink-0 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white">田</div>
+                  <span class="flex-1 line-through">必要書類一覧・見積書送付</span>
+                  <span class="text-xs text-gray-500">10/22</span>
+                </div>
+                <div class="flex items-center gap-3 rounded bg-emerald-50/50 p-2 text-sm">
+                  <div class="flex size-6 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white">佐</div>
+                  <span class="flex-1 line-through">本人確認書類保存（売主）</span>
+                  <span class="text-xs text-gray-500">10/30</span>
+                </div>
+              </div>
+            </details>
+          </section>
+
+        </div>
       </div>
-      <div class="flex flex-wrap items-center gap-1 border-t px-4 py-1.5 text-xs">
-        <span class="text-gray-400">締切:</span>
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 text-emerald-700">
-          <span class="size-1.5 rounded-full bg-emerald-500"></span>事前郵送 <span class="font-mono">10/26</span>
-        </span>
-        <span class="text-gray-300">·</span>
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 text-amber-700">
-          <span class="size-1.5 rounded-full bg-amber-500"></span>押印返送 <span class="font-mono">11/03</span><span class="text-gray-500">(あと2日)</span>
-        </span>
-        <span class="text-gray-300">·</span>
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 text-red-700">
-          <span class="size-1.5 rounded-full bg-red-500"></span>融資受領 <span class="font-mono">11/03</span><span>(あと2日 ⚠)</span>
-        </span>
-        <span class="text-gray-300">·</span>
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 text-gray-600">
-          <span class="size-1.5 rounded-full bg-gray-300"></span>全確定 <span class="font-mono">11/04</span>
-        </span>
-      </div>
-    </div>
 
-    <!-- 並走バナー: 「いま 3 タスク 並走中」 -->
-    <div id="parallel-banner" class="border-b bg-blue-50/50 px-4 py-2 text-xs">
-      <!-- 動的描画 -->
-    </div>
-
-    <!-- 3 カラム: タスクナビ / 詳細 / メタ -->
-    <div class="flex flex-1 overflow-hidden">
-
-      <!-- 左: タスクナビ（ロール別グルーピング） -->
-      <aside class="w-72 shrink-0 overflow-y-auto border-r bg-white">
-        <div id="task-nav"></div>
+      <!-- ===== 右パネル: 詳細（カードクリックで内容差し替え） ===== -->
+      <aside id="detail-panel" class="w-96 shrink-0 overflow-y-auto border-l bg-white">
+        <div id="detail-content"></div>
       </aside>
-
-      <!-- 中央: 選択中タスクの詳細 -->
-      <section class="flex-1 overflow-y-auto bg-gray-50 p-6">
-        <div id="task-detail" class="mx-auto max-w-2xl"></div>
-      </section>
-
-      <!-- 右: 事件メタ -->
-      <aside class="w-64 shrink-0 overflow-y-auto border-l bg-white p-4 text-sm">
-        <div class="mb-4">
-          <div class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">当事者</div>
-          <div class="mb-2 border-b pb-2">
-            <div class="text-xs text-gray-500">売主</div>
-            <div class="font-medium">山田 太郎</div>
-            <div class="text-xs text-gray-500">東京都新宿区...</div>
-          </div>
-          <div class="mb-2 border-b pb-2">
-            <div class="text-xs text-gray-500">売主</div>
-            <div class="font-medium">山田 花子</div>
-          </div>
-          <div class="mb-2 border-b pb-2">
-            <div class="text-xs text-gray-500">買主</div>
-            <div class="font-medium">佐藤 次郎</div>
-          </div>
-          <div class="mb-2 border-b pb-2">
-            <div class="text-xs text-gray-500">設定金融機関</div>
-            <div class="font-medium">三井住友銀行</div>
-          </div>
-        </div>
-        <div class="mb-4">
-          <div class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">物件</div>
-          <div class="text-xs text-gray-700">東京都新宿区西新宿◯丁目 12-34</div>
-        </div>
-        <div>
-          <div class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Driveフォルダ</div>
-          <a href="#" class="text-xs text-brand-blue hover:underline">Drive で開く ↗</a>
-        </div>
-      </aside>
-    </div>
+    </main>
   </div>
 </div>
 
 <script>
-// ====== モックデータ ======
+const STAFF_COLOR = {
+  '田中':'bg-blue-500','佐藤':'bg-emerald-500','鈴木':'bg-violet-500',
+  '伊藤':'bg-amber-500','高橋':'bg-rose-500',
+};
+
+const TASKS_DATA = {
+  10: { name:'書類受領（売主）', role:'売主', assignee:'佐藤', deadline:'10/29', state:'in_progress',
+    docs:[
+      { name:'売主印鑑証明書', kind:'collection', state:'confirmed' },
+      { name:'売主住民票',     kind:'collection', state:'confirmed' },
+      { name:'登記識別情報通知（売主） ●預', kind:'collection', state:'received' },
+      { name:'売主用委任状（押印分）', kind:'collection', state:'requested' },
+    ]},
+  20: { name:'書類受領（買主）', role:'買主', assignee:'鈴木', deadline:'11/02', state:'in_progress',
+    docs:[
+      { name:'買主住民票', kind:'collection', state:'confirmed' },
+      { name:'買主印鑑証明書', kind:'collection', state:'requested' },
+    ]},
+  30: { name:'書類受領（抹消金融機関）', role:'抹消金融機関', assignee:'伊藤', deadline:'10/29', state:'overdue',
+    docs:[
+      { name:'抹消書類一式', kind:'collection', state:'requested' },
+      { name:'抹消委任状（既存銀行）', kind:'collection', state:'requested' },
+      { name:'登記識別情報通知（既存抵当権者）', kind:'collection', state:'not_started' },
+    ]},
+  40: { name:'書類受領（設定金融機関）', role:'設定金融機関', assignee:'伊藤', deadline:'11/03', state:'not_started',
+    docs:[
+      { name:'設定契約書',     kind:'collection', state:'not_started' },
+      { name:'設定委任状',     kind:'collection', state:'not_started' },
+      { name:'印鑑証明書（新規銀行）', kind:'collection', state:'not_started' },
+    ]},
+  5:  { name:'書類作成', role:'共通', assignee:'田中', deadline:'10/26', state:'in_progress',
+    docs:[
+      { name:'売主用委任状（押印往復）', kind:'creation', state:'confirmed' },
+      { name:'登記原因証明情報', kind:'creation', state:'drafted' },
+      { name:'買主用委任状', kind:'creation', state:'not_started' },
+    ]},
+  6:  { name:'前日連絡', role:'共通', assignee:'田中', deadline:'11/04', state:'not_started', blocked_by:'書類作成', docs:[] },
+  7:  { name:'決済・登記申請', role:'共通', assignee:'田中', deadline:'11/05', state:'not_started', blocked_by:'前日連絡', docs:[] },
+  11: { name:'本人確認書類保存（売主）', role:'売主', assignee:'佐藤', deadline:'11/04', state:'completed', docs:[] },
+};
+
 const STATE_DOT = {
-  completed:'bg-emerald-500',
-  confirmed:'bg-emerald-500',
-  in_progress:'bg-blue-500',
-  requested:'bg-blue-500',
-  received:'bg-cyan-500',
-  drafted:'bg-amber-500',
-  overdue:'bg-red-500',
-  not_started:'border border-gray-300',
+  completed:'bg-emerald-500', confirmed:'bg-emerald-500',
+  in_progress:'bg-blue-500', requested:'bg-blue-500',
+  received:'bg-cyan-500', drafted:'bg-amber-500',
+  overdue:'bg-red-500', not_started:'border border-gray-300',
 };
-const ROLE_DOT = {
-  common:'bg-gray-400',
-  seller:'bg-orange-400',
-  buyer:'bg-blue-400',
-  cancel:'bg-rose-400',
-  setting:'bg-violet-400',
+const STATE_LABEL = {
+  completed:'完了', confirmed:'確定',
+  in_progress:'進行中', requested:'依頼済',
+  received:'受領', drafted:'ドラフト',
+  overdue:'超過', not_started:'未着手',
 };
-
-// 全タスクをフラットに保持
-const TASKS = [
-  // 共通
-  { id:1, role:'common', name:'事件受任', state:'completed', assignee:'田中', deadline:'10/05', docs:[] },
-  { id:2, role:'common', name:'当事者情報', state:'completed', assignee:'田中', deadline:'10/05', docs:[] },
-  { id:3, role:'common', name:'書類受領', state:'in_progress', assignee:'田中', deadline:'10/22', docs:[
-    { name:'売買契約書写し', kind:'collection', state:'confirmed', deadline:'10/22' },
-    { name:'登記情報',       kind:'collection', state:'confirmed', deadline:'10/22' },
-    { name:'公図',           kind:'collection', state:'confirmed', deadline:'10/22' },
-    { name:'評価証明書',     kind:'collection', state:'requested', deadline:'10/31' },
-  ]},
-  { id:4, role:'common', name:'必要書類一覧・見積書送付', state:'completed', assignee:'田中', deadline:'10/22', docs:[
-    { name:'必要書類一覧（売主用）', kind:'creation', state:'confirmed', deadline:'10/22' },
-    { name:'必要書類一覧（買主用）', kind:'creation', state:'confirmed', deadline:'10/22' },
-  ]},
-  // 書類作成は収集と並走可能（ドラフトは先に作れる）
-  { id:5, role:'common', name:'書類作成', state:'in_progress', assignee:'田中', deadline:'10/26', docs:[
-    { name:'売主用委任状（押印往復）',     kind:'creation', state:'confirmed', deadline:'10/26' },
-    { name:'登記原因証明情報（売主押印分）', kind:'creation', state:'drafted',   deadline:'10/26' },
-    { name:'買主用委任状',                 kind:'creation', state:'not_started', deadline:'11/04' },
-  ]},
-  // 前日連絡は書類作成完了が必要（hard sequential）
-  { id:6, role:'common', name:'前日連絡', state:'not_started', assignee:'田中', deadline:'11/04', blocked_by:['書類作成'], docs:[] },
-  // 決済は前日連絡 + 受付カード + 本人確認が完了してから
-  { id:7, role:'common', name:'決済・登記申請', state:'not_started', assignee:'田中', deadline:'11/05', blocked_by:['前日連絡','本人確認書類保存'], docs:[] },
-
-  // 売主
-  { id:10, role:'seller', name:'書類受領（売主）', state:'in_progress', assignee:'佐藤', deadline:'10/29', docs:[
-    { name:'売主印鑑証明書', kind:'collection', state:'confirmed', deadline:'10/29' },
-    { name:'売主住民票',     kind:'collection', state:'confirmed', deadline:'10/29' },
-    { name:'登記識別情報通知', kind:'collection', state:'received', deadline:'11/05', is_held:true },
-    { name:'売主用委任状（押印分受領）', kind:'collection', state:'requested', deadline:'11/03' },
-  ]},
-  { id:11, role:'seller', name:'本人確認書類保存（売主）', state:'completed', assignee:'佐藤', deadline:'10/30', docs:[] },
-
-  // 買主
-  { id:20, role:'buyer', name:'書類受領（買主）', state:'in_progress', assignee:'鈴木', deadline:'11/02', docs:[
-    { name:'買主住民票',     kind:'collection', state:'confirmed', deadline:'11/02' },
-    { name:'買主印鑑証明書', kind:'collection', state:'requested',  deadline:'11/02' },
-  ]},
-
-  // 抹消金融機関
-  { id:30, role:'cancel', name:'書類受領（抹消金融機関）', state:'overdue', assignee:'伊藤', deadline:'10/29', daysOver:-2, docs:[
-    { name:'抹消書類一式',                   kind:'collection', state:'requested',  deadline:'11/02' },
-    { name:'抵当権抹消委任状（既存銀行）',   kind:'collection', state:'requested',  deadline:'11/02' },
-    { name:'登記識別情報通知（既存抵当権者）', kind:'collection', state:'not_started', deadline:'11/02' },
-  ]},
-
-  // 設定金融機関
-  { id:40, role:'setting', name:'書類受領（設定金融機関）', state:'not_started', assignee:'伊藤', deadline:'11/03', docs:[
-    { name:'設定契約書',     kind:'collection', state:'not_started', deadline:'11/03' },
-    { name:'設定委任状',     kind:'collection', state:'not_started', deadline:'11/03' },
-    { name:'印鑑証明書（新規銀行）', kind:'collection', state:'not_started', deadline:'11/03' },
-  ]},
-];
-
-const ROLES = [
-  { key:'common',  label:'共通'         },
-  { key:'seller',  label:'売主'         },
-  { key:'buyer',   label:'買主'         },
-  { key:'cancel',  label:'抹消金融機関' },
-  { key:'setting', label:'設定金融機関' },
-];
-
-// ====== 並走バナー（依存待ちは除外） ======
-function renderParallelBanner() {
-  const inProgress = TASKS.filter((t) => t.state === 'in_progress' && !t.blocked_by);
-  const overdue    = TASKS.filter((t) => t.state === 'overdue' && !t.blocked_by);
-  const banner = document.getElementById('parallel-banner');
-
-  let html = `<div class="flex items-center gap-2 flex-wrap">
-    <span class="font-semibold text-gray-700">いま並走中:</span>`;
-  inProgress.forEach((t) => {
-    html += `<button onclick="select(${t.id})" class="inline-flex items-center gap-1 rounded bg-white px-2 py-1 ring-1 ring-blue-200 hover:ring-blue-400">
-      <span class="size-1.5 rounded-full bg-blue-500"></span>
-      <span class="text-blue-700">${t.name}</span>
-      <span class="text-gray-400">·</span>
-      <span class="text-gray-500">${t.assignee}</span>
-      <span class="text-gray-400">/${t.deadline}</span>
-    </button>`;
-  });
-  if (overdue.length) {
-    html += `<span class="ml-2 text-red-600">⚠ 超過:</span>`;
-    overdue.forEach((t) => {
-      html += `<button onclick="select(${t.id})" class="inline-flex items-center gap-1 rounded bg-white px-2 py-1 ring-1 ring-red-200 hover:ring-red-400">
-        <span class="size-1.5 rounded-full bg-red-500"></span>
-        <span class="text-red-700">${t.name}</span>
-        <span class="text-gray-400">·</span>
-        <span class="text-gray-500">${t.assignee}</span>
-        <span class="text-red-600 font-bold">${t.daysOver}日</span>
-      </button>`;
-    });
-  }
-  html += `</div>`;
-  banner.innerHTML = html;
-}
-
-// ====== 左ナビ ======
-let selectedId = 3; // デフォルト選択
-
-function renderNav() {
-  const root = document.getElementById('task-nav');
-  let html = '';
-  ROLES.forEach((r) => {
-    const tasks = TASKS.filter((t) => t.role === r.key);
-    if (tasks.length === 0) return;
-    const done = tasks.filter((t) => t.state === 'completed').length;
-    const overdue = tasks.filter((t) => t.state === 'overdue').length;
-    const inProgress = tasks.filter((t) => t.state === 'in_progress').length;
-
-    html += `<div class="border-b">
-      <div class="flex items-center gap-2 bg-gray-50 px-3 py-1.5 text-xs">
-        ${r.key !== 'common' ? `<span class="size-2 rounded-full ${ROLE_DOT[r.key]}"></span>` : ''}
-        <span class="font-semibold text-gray-700">${r.label}</span>
-        <span class="text-gray-400">${done}/${tasks.length}</span>
-        ${inProgress > 0 ? `<span class="ml-auto text-[10px] text-blue-600">●${inProgress}並走</span>` : ''}
-        ${overdue > 0 ? `<span class="ml-auto text-[10px] font-bold text-red-600">⚠${overdue}</span>` : ''}
-      </div>
-      <ul>`;
-    tasks.forEach((t) => {
-      const active = t.id === selectedId;
-      const blocked = !!t.blocked_by;
-      const docBadge = t.docs.length > 0
-        ? `<span class="text-[10px] text-gray-400">📎${t.docs.filter((d)=>d.state==='confirmed'||d.state==='received').length}/${t.docs.length}</span>`
-        : '';
-      const indicator = blocked
-        ? `<span class="text-[10px] text-gray-400">⏸</span>`
-        : `<span class="size-2 shrink-0 rounded-full ${STATE_DOT[t.state]}"></span>`;
-      const title = blocked ? `title="待ち: ${t.blocked_by.join('・')}"` : '';
-      html += `<li>
-        <button onclick="select(${t.id})" ${title} class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-blue-50 ${active ? 'bg-blue-50 font-medium' : ''} ${blocked ? 'opacity-50' : ''}">
-          ${indicator}
-          <span class="flex-1 truncate ${(t.state==='not_started'||blocked) ? 'text-gray-500' : ''}">${t.name}</span>
-          ${docBadge}
-        </button>
-      </li>`;
-    });
-    html += `</ul></div>`;
-  });
-  root.innerHTML = html;
-}
-
-// ====== 中央詳細 ======
-function renderDetail() {
-  const t = TASKS.find((x) => x.id === selectedId);
-  if (!t) return;
-  const role = ROLES.find((r) => r.key === t.role);
-  const root = document.getElementById('task-detail');
-
-  let dueLabel = t.deadline;
-  let dueCls = 'text-gray-700';
-  if (t.daysOver !== undefined && t.daysOver < 0) {
-    dueLabel = `${t.deadline} (${t.daysOver}日超過)`;
-    dueCls = 'font-bold text-red-600';
-  }
-
-  let html = `
-    <header class="mb-4 flex items-center justify-between">
-      <div>
-        <div class="text-xs text-gray-500">${role?.label ?? '—'}</div>
-        <h2 class="text-xl font-semibold">${t.name}</h2>
-      </div>
-      <div class="flex gap-2">
-        <button class="rounded border bg-white px-3 py-1 text-xs hover:bg-gray-50 ${t.blocked_by ? 'opacity-40' : ''}" ${t.blocked_by ? 'disabled' : ''}>完了にする</button>
-      </div>
-    </header>`;
-
-  if (t.blocked_by) {
-    html += `<div class="mb-4 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-      ⏸ 待ち: <strong>${t.blocked_by.join('・')}</strong> の完了が必要
-    </div>`;
-  }
-
-  html += `<div class="mb-4 grid grid-cols-2 gap-4 rounded border bg-white p-4 text-sm">
-      <div>
-        <div class="text-xs text-gray-500">担当者</div>
-        <select class="mt-0.5 rounded border-gray-200 bg-transparent text-sm">
-          <option ${t.assignee==='田中'?'selected':''}>田中</option>
-          <option ${t.assignee==='佐藤'?'selected':''}>佐藤</option>
-          <option ${t.assignee==='鈴木'?'selected':''}>鈴木</option>
-          <option ${t.assignee==='伊藤'?'selected':''}>伊藤</option>
-        </select>
-      </div>
-      <div>
-        <div class="text-xs text-gray-500">進行状況</div>
-        <select class="mt-0.5 rounded border-gray-200 bg-transparent text-sm">
-          <option ${t.state==='not_started'?'selected':''}>未着手</option>
-          <option ${t.state==='in_progress'?'selected':''}>進行中</option>
-          <option ${t.state==='completed'?'selected':''}>完了</option>
-          <option ${t.state==='overdue'?'selected':''}>期日超過</option>
-        </select>
-      </div>
-      <div>
-        <div class="text-xs text-gray-500">期日</div>
-        <div class="mt-0.5 font-mono ${dueCls}">${dueLabel}</div>
-      </div>
-      <div>
-        <div class="text-xs text-gray-500">マイルストーン</div>
-        <div class="mt-0.5 text-gray-700">押印返送</div>
-      </div>
-    </div>`;
-
-  if (t.docs.length > 0) {
-    html += `<div class="mb-4 rounded border bg-white">
-      <header class="flex items-center justify-between border-b px-4 py-2">
-        <div class="text-sm font-semibold">含まれる書類 <span class="ml-1 text-xs text-gray-400">${t.docs.length}件</span></div>
-        <span class="text-xs text-gray-500">📎 ${t.docs.filter((d)=>d.state==='confirmed'||d.state==='received').length}/${t.docs.length} 完了</span>
-      </header>
-      <ul class="divide-y divide-gray-100 text-sm">`;
-    t.docs.forEach((d) => {
-      html += `<li class="flex items-center gap-3 px-4 py-1.5">
-        <span class="size-2 shrink-0 rounded-full ${STATE_DOT[d.state]}"></span>
-        <span class="flex-1 truncate">${d.name}${d.is_held ? '<span class="ml-1 text-emerald-600 text-xs">●預</span>' : ''}</span>
-        <span class="w-12 text-xs text-gray-400">${d.kind === 'collection' ? '収集' : '作成'}</span>
-        <select class="w-24 rounded border-0 bg-transparent text-xs text-gray-600 focus:ring-1 focus:ring-brand-blue">
-          ${d.kind === 'collection'
-            ? `<option ${d.state==='not_started'?'selected':''}>未着手</option>
-               <option ${d.state==='requested'?'selected':''}>依頼済</option>
-               <option ${d.state==='received'?'selected':''}>受領</option>
-               <option ${d.state==='confirmed'?'selected':''}>確定</option>`
-            : `<option ${d.state==='not_started'?'selected':''}>未着手</option>
-               <option ${d.state==='drafted'?'selected':''}>ドラフト</option>
-               <option ${d.state==='confirmed'?'selected':''}>確定</option>`}
-        </select>
-        <span class="w-16 text-right font-mono text-xs text-gray-400">${d.deadline}</span>
-      </li>`;
-    });
-    html += `</ul></div>`;
-  } else {
-    html += `<div class="rounded border bg-white p-4 text-xs text-gray-400">紐付く書類はありません（独立タスク）</div>`;
-  }
-
-  html += `<div class="mt-4 rounded border bg-white">
-    <header class="border-b px-4 py-2 text-sm font-semibold">コメント</header>
-    <div class="p-4 text-xs text-gray-400">コメントなし</div>
-  </div>`;
-
-  root.innerHTML = html;
-}
 
 function select(id) {
-  selectedId = id;
-  renderNav();
-  renderDetail();
-}
-window.select = select;
+  const t = TASKS_DATA[id];
+  if (!t) return;
+  const avatar = STAFF_COLOR[t.assignee] || 'bg-gray-400';
+  const docDone = t.docs.filter((d) => d.state==='confirmed' || d.state==='received').length;
 
-renderParallelBanner();
-renderNav();
-renderDetail();
+  let html = `
+    <div class="border-b bg-gray-50 px-6 py-4">
+      <div class="text-xs text-gray-500">${t.role}</div>
+      <h3 class="mt-1 text-lg font-bold">${t.name}</h3>
+      ${t.blocked_by ? `<div class="mt-2 inline-flex items-center gap-1 rounded bg-amber-100 px-2 py-0.5 text-xs text-amber-800">⏸ ${t.blocked_by} 完了待ち</div>` : ''}
+    </div>
+
+    <div class="space-y-4 p-6">
+      <div class="flex items-center gap-3">
+        <div class="flex size-10 items-center justify-center rounded-full ${avatar} text-sm font-bold text-white">${t.assignee[0]}</div>
+        <div>
+          <div class="text-xs text-gray-500">担当</div>
+          <div class="font-medium">${t.assignee}</div>
+        </div>
+        <div class="ml-auto text-right">
+          <div class="text-xs text-gray-500">期日</div>
+          <div class="font-mono ${t.state==='overdue' ? 'font-bold text-red-600' : ''}">${t.deadline}</div>
+        </div>
+      </div>
+
+      ${t.docs.length > 0 ? `
+        <div>
+          <div class="mb-2 flex items-center justify-between">
+            <div class="text-xs font-semibold text-gray-600">書類 (${docDone}/${t.docs.length})</div>
+            <div class="h-1.5 w-20 overflow-hidden rounded-full bg-gray-200">
+              <div class="h-full bg-emerald-500" style="width:${(docDone/t.docs.length*100)}%"></div>
+            </div>
+          </div>
+          <ul class="divide-y divide-gray-100 rounded border bg-white text-sm">
+            ${t.docs.map((d) => `
+              <li class="flex items-center gap-3 px-3 py-2">
+                <span class="size-2 shrink-0 rounded-full ${STATE_DOT[d.state]}"></span>
+                <span class="flex-1 truncate">${d.name}</span>
+                <span class="text-xs text-gray-500">${STATE_LABEL[d.state]}</span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+      ` : '<div class="rounded border bg-gray-50 p-3 text-xs text-gray-400">紐付く書類はありません</div>'}
+
+      <div class="flex gap-2">
+        <button class="flex-1 rounded bg-emerald-500 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-600 ${t.blocked_by ? 'opacity-40 cursor-not-allowed' : ''}" ${t.blocked_by ? 'disabled' : ''}>
+          ✓ 完了にする
+        </button>
+        <button class="rounded border bg-white px-3 py-2 text-sm hover:bg-gray-50">⋯</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('detail-content').innerHTML = html;
+}
+
+// 初期表示
+select(10);
 </script>
 
 <a href="index.html" class="fixed bottom-4 right-4 rounded-full bg-brand-navy px-4 py-2 text-xs text-white shadow">← プレビュー一覧</a>
