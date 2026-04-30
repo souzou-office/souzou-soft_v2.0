@@ -225,9 +225,51 @@ tailwind.config = {
         </div>
       </div>
 
-      <!-- ===== 右パネル: 詳細（カードクリックで内容差し替え） ===== -->
-      <aside id="detail-panel" class="w-96 shrink-0 overflow-y-auto border-l bg-white">
-        <div id="detail-content"></div>
+      <!-- ===== 右パネル: 詳細（上）+ ファイルドロップゾーン（下固定） ===== -->
+      <aside id="detail-panel" class="flex w-96 shrink-0 flex-col border-l bg-white">
+        <div id="detail-content" class="flex-1 overflow-y-auto"></div>
+
+        <!-- ファイル投入欄 -->
+        <div class="border-t bg-white p-4">
+          <div class="mb-2 flex items-center justify-between">
+            <div class="text-xs font-semibold text-gray-700">
+              📁 事件のファイル <span class="ml-2 text-gray-400">(3)</span>
+            </div>
+            <a href="#" class="text-[10px] text-brand-blue hover:underline">Drive で開く ↗</a>
+          </div>
+
+          <div id="dropzone"
+               onclick="document.getElementById('fileInput').click()"
+               class="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 py-6 text-sm transition">
+            <div class="text-2xl">📥</div>
+            <div class="mt-1 text-gray-700">ファイルをドロップ</div>
+            <div class="text-[10px] text-gray-400">クリックでファイル選択</div>
+          </div>
+          <input id="fileInput" type="file" multiple hidden onchange="handleFiles(event.target.files)" />
+
+          <ul class="mt-3 max-h-48 space-y-1 overflow-y-auto text-xs">
+            <li class="flex items-center gap-2 rounded px-2 py-1 hover:bg-gray-50">
+              <span class="text-base">📕</span>
+              <a href="#" class="flex-1 truncate text-brand-blue hover:underline">売買契約書_山田.pdf</a>
+              <span class="text-gray-400">2.4 MB</span>
+            </li>
+            <li class="flex items-center gap-2 rounded px-2 py-1 hover:bg-gray-50">
+              <span class="text-base">🖼️</span>
+              <a href="#" class="flex-1 truncate text-brand-blue hover:underline">権利証_スキャン.jpg</a>
+              <span class="text-gray-400">1.1 MB</span>
+            </li>
+            <li class="flex items-center gap-2 rounded px-2 py-1 hover:bg-gray-50">
+              <span class="text-base">📊</span>
+              <a href="#" class="flex-1 truncate text-brand-blue hover:underline">登録免許税試算.xlsx</a>
+              <span class="text-gray-400">38 KB</span>
+            </li>
+            <li id="just-uploaded" class="hidden flex items-center gap-2 rounded bg-emerald-50 px-2 py-1">
+              <span class="text-base">✓</span>
+              <span class="flex-1 truncate text-emerald-700"></span>
+              <span class="text-gray-400"></span>
+            </li>
+          </ul>
+        </div>
       </aside>
     </main>
   </div>
@@ -347,6 +389,33 @@ function select(id) {
 
 // 初期表示
 select(10);
+
+// ====== ドラッグ&ドロップ（プレビュー用デモ） ======
+const dz = document.getElementById('dropzone');
+['dragenter','dragover'].forEach((ev) => dz.addEventListener(ev, (e) => {
+  e.preventDefault();
+  dz.classList.remove('border-gray-300','bg-gray-50');
+  dz.classList.add('border-blue-400','bg-blue-50');
+}));
+['dragleave','drop'].forEach((ev) => dz.addEventListener(ev, (e) => {
+  e.preventDefault();
+  dz.classList.add('border-gray-300','bg-gray-50');
+  dz.classList.remove('border-blue-400','bg-blue-50');
+}));
+dz.addEventListener('drop', (e) => handleFiles(e.dataTransfer.files));
+
+function handleFiles(files) {
+  if (!files || files.length === 0) return;
+  const f = files[0];
+  const sz = f.size < 1024 ? `${f.size} B`
+           : f.size < 1024*1024 ? `${(f.size/1024).toFixed(1)} KB`
+           : `${(f.size/1024/1024).toFixed(1)} MB`;
+  const li = document.getElementById('just-uploaded');
+  li.classList.remove('hidden');
+  li.classList.add('flex');
+  li.querySelector('span:nth-of-type(2)').textContent = `${f.name} をアップロード（デモ）`;
+  li.querySelector('span:last-of-type').textContent = sz;
+}
 </script>
 
 <a href="index.html" class="fixed bottom-4 right-4 rounded-full bg-brand-navy px-4 py-2 text-xs text-white shadow">← プレビュー一覧</a>

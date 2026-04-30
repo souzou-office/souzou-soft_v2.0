@@ -36,6 +36,7 @@ class MatterController extends Controller
             'parties',
             'properties',
             'mainUser',
+            'uploadedFiles.uploader',
         ]);
 
         return Inertia::render('Matter/Show', [
@@ -216,6 +217,18 @@ class MatterController extends Controller
             ]),
             // ロール別レーン用の集計
             'lane_summary' => $this->laneSummary($matter),
+
+            // ドラッグ&ドロップで上げたファイル群（Drive リンク + 最近順）
+            'uploaded_files' => $matter->uploadedFiles->map(fn ($f) => [
+                'id'              => $f->id,
+                'original_name'   => $f->original_name,
+                'mime_type'       => $f->mime_type,
+                'human_size'      => $f->humanSize(),
+                'drive_url'       => $f->driveUrl(),
+                'is_local_only'   => $f->drive_file_id === null,
+                'uploader'        => $f->uploader?->name,
+                'created_at'      => $f->created_at->toIso8601String(),
+            ]),
         ];
     }
 

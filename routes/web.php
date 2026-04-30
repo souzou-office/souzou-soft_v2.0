@@ -39,6 +39,12 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/documents/{document}', [\App\Http\Controllers\DocumentStateController::class, 'update'])
         ->name('documents.update');
 
+    // 事件単位の汎用ファイルアップロード（Drive 連携）
+    Route::post('/matters/{matter}/uploads', [\App\Http\Controllers\MatterUploadController::class, 'store'])
+        ->name('matters.uploads.store');
+    Route::delete('/matters/{matter}/uploads/{file}', [\App\Http\Controllers\MatterUploadController::class, 'destroy'])
+        ->name('matters.uploads.destroy');
+
     // 6章 書類生成
     Route::get('/matters/{matter}/documents/{template}/form', [DocumentController::class, 'form'])->name('documents.form');
     Route::post('/matters/{matter}/documents/{template}/generate', [DocumentController::class, 'generate'])->name('documents.generate');

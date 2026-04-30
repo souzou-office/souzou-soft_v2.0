@@ -56,6 +56,11 @@ class Matter extends Model
         return $this->hasMany(Milestone::class)->orderBy('deadline_offset_days');
     }
 
+    public function uploadedFiles(): HasMany
+    {
+        return $this->hasMany(UploadedFile::class)->orderByDesc('created_at');
+    }
+
     public function parties(): HasMany
     {
         return $this->hasMany(Party::class)->orderBy('display_order');

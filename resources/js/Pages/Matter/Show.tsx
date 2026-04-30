@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import { AppLayout } from '@/Layouts/AppLayout';
+import { FileDropZone } from '@/Components/FileDropZone';
 import { cn } from '@/Lib/cn';
 
 /**
@@ -40,6 +41,16 @@ type TaskItem = {
     documents_done: number;
 };
 
+type UploadedFile = {
+    id: number;
+    original_name: string;
+    human_size: string;
+    drive_url: string | null;
+    is_local_only: boolean;
+    uploader: string | null;
+    created_at: string;
+};
+
 type Props = {
     matter: {
         id: number;
@@ -48,6 +59,8 @@ type Props = {
         progress: { done: number; total: number; percent: number };
         parties: { id: number; role_code: number; name: string }[];
         tasks: TaskItem[];
+        uploaded_files: UploadedFile[];
+        drive_folder_id: string | null;
     };
     staff: { id: number; name: string }[];
 };
@@ -240,11 +253,18 @@ export default function MatterShow({ matter, staff }: Props) {
                     </div>
                 </div>
 
-                {/* 右パネル: 詳細 */}
-                <aside className="w-96 shrink-0 overflow-y-auto border-l bg-white">
-                    {selected ? <DetailPanel task={selected} /> : (
-                        <div className="p-6 text-sm text-gray-400">タスクを選択</div>
-                    )}
+                {/* 右パネル: 詳細 + 下部にファイルドロップゾーン */}
+                <aside className="flex w-96 shrink-0 flex-col border-l bg-white">
+                    <div className="flex-1 overflow-y-auto">
+                        {selected ? <DetailPanel task={selected} /> : (
+                            <div className="p-6 text-sm text-gray-400">タスクを選択</div>
+                        )}
+                    </div>
+                    <FileDropZone
+                        matterId={matter.id}
+                        files={matter.uploaded_files}
+                        driveFolderId={matter.drive_folder_id}
+                    />
                 </aside>
             </div>
         </AppLayout>
